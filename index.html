@@ -127,7 +127,7 @@ const qf=q=>fmt(q,q<0.001?9:q<1?6:3);
 const dt=(t,time=true)=>new Date(t*1000).toLocaleString('de-DE',time?{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}:{day:'2-digit',month:'2-digit',year:'numeric'});
 const freeFrom=t=>{const d=new Date(t*1000);d.setFullYear(d.getFullYear()+1);d.setDate(d.getDate()+1);d.setHours(0,0,0,0);return d.getTime()/1000};
 const big=n=>n==null?'–':n>=1e12?fmt(n/1e12,2)+' Bio.':n>=1e9?fmt(n/1e9,2)+' Mrd.':n>=1e6?fmt(n/1e6,2)+' Mio.':fmt(n,0);
-const TFS=[['1','1m','1 Minute, ca. 12 Stunden zurück'],['5','5m','5 Minuten, ca. 2,5 Tage zurück'],['15','15m','15 Minuten, ca. 7,5 Tage zurück'],['30','30m','30 Minuten, ca. 15 Tage zurück'],['60','1h','1 Stunde, ca. 30 Tage zurück'],['240','4h','4 Stunden, ca. 4 Monate zurück'],['1440','1T','1 Tag, ca. 2 Jahre zurück'],['10080','1W','1 Woche, mehrere Jahre zurück']];
+const TFS=[['1','1m','1 Minute, ca. 12 Stunden zurück'],['5','5m','5 Minuten, ca. 2,5 Tage zurück'],['15','15m','15 Minuten, ca. 7,5 Tage zurück'],['30','30m','30 Minuten, ca. 15 Tage zurück'],['60','1h','1 Stunde, ca. 30 Tage zurück'],['240','4h','4 Stunden, ca. 4 Monate zurück'],['1440','1T','1 Tag, ca. 2 Jahre zurück'],['10080','1W','1 Woche, bis zu 13 Jahre zurück (ganze Historie auf Kraken)']];
 const store={get(k,d){try{const v=localStorage.getItem('kd_'+k);return v===null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem('kd_'+k,v)}catch(e){}}};
 let charts=[],geckoLive=false;
 const yearOf=t=>new Date(t*1000).getFullYear(),NOWY=new Date().getFullYear();
@@ -228,7 +228,7 @@ function renderDepot(){
   <div class="panel"><h2>Eingesetztes Geld (blau) gegen Wert der gekauften Coins (gelb), in €</h2><div class="leg" id="cumleg" style="margin:0 0 8px"></div><div id="cum" class="ch2" style="height:240px"></div><div class="small">Liegt Gelb unter Blau, sind die gekauften Coins weniger wert als bezahlt. Fahr mit der Maus oder dem Finger über das Diagramm, um die Werte für einen Tag zu sehen. Gelb rechnet mit dem Tagesschlusskurs und nur mit den seit 22.08.2026 gekauften Mengen, ohne Staking-Prämien und ältere Bestände.</div></div>
   <div class="grid" id="grid"></div>
   <div class="note"><b>Woher die Zahlen stammen:</b> Bestand und Ø-Einstand sind der Stand aus deinem Kraken-Konto vom ${SNAP}. Käufe, Verkäufe und Staking-Prämien stammen aus dem Kraken-Hauptbuch. Kurse: Kraken, bei jedem Öffnen neu geladen; fällt das aus, gilt der Kurs vom Stand oben. Der Bestand ist nicht live.</div>
-  <div class="note"><b>Zwei Verlustzahlen je Coin:</b> Führend ist die Zahl oben rechts in der Karte (Bestand × Kurs minus Ø-Einstand laut Kraken). Die Summe in der Transaktionsliste zählt nur die Käufe seit 22.08.2026 inkl. Gebühren und weicht deshalb ab: Kraken rechnet Staking-Prämien, Einzahlungen, Verkäufe und ältere Bestände ein. <b>Nicht enthalten:</b> der ETH-Kauf vom 25.08.2026 (in USD bezahlt), die xStocks-Käufe, Anschaffungen vor dem 22.08.2026. Kraken liefert je Abruf höchstens 720 Kerzen; ältere Käufe haben in kurzen Intervallen keinen Punkt, stehen aber in der Liste. Fallen mehrere Käufe in dieselbe Kerze, zeigt der Punkt ihren Durchschnittskurs; ein feineres Intervall trennt sie. Keine Anlageberatung.</div>`;
+  <div class="note"><b>Zwei Verlustzahlen je Coin:</b> Führend ist die Zahl oben rechts in der Karte (Bestand × Kurs minus Ø-Einstand laut Kraken). Die Summe in der Transaktionsliste zählt nur die Käufe seit 22.08.2026 inkl. Gebühren und weicht deshalb ab: Kraken rechnet Staking-Prämien, Einzahlungen, Verkäufe und ältere Bestände ein. <b>Nicht enthalten:</b> der ETH-Kauf vom 25.08.2026 (in USD bezahlt), die xStocks-Käufe, Anschaffungen vor dem 22.08.2026. Der Knopf „Gesamt“ zeigt die ganze Kurshistorie seit dem Handelsstart des Coins auf Kraken in Wochenkerzen (nicht seit Erfindung des Coins; Bitcoin z. B. ab 2013). Kraken liefert je Abruf höchstens 720 Kerzen; ältere Käufe haben in kurzen Intervallen keinen Punkt, stehen aber in der Liste. Fallen mehrere Käufe in dieselbe Kerze, zeigt der Punkt ihren Durchschnittskurs; ein feineres Intervall trennt sie. Keine Anlageberatung.</div>`;
   $('#stand').textContent='Stand Bestand: '+SNAP;
   drawDonut(rows,crypto);drawCum();
   const grid=$('#grid');
@@ -236,11 +236,11 @@ function renderDepot(){
     const card=document.createElement('div');card.className='card';card.id='c-'+c.c;
     card.innerHTML=`<div class="hd"><div class="t">${c.c}<small>${c.name} · ${c.pair}</small></div><div class="pl ${cls(c.pl)}">${sgn(c.pl)} (${fmtP(c.pl/c.cost*100)})</div></div>
     <div class="stats"><span>Bestand <b>${fmt(c.qty,c.qty<1?6:3)}</b></span><span>Ø-Einstand <b>${fmt(c.avg,priceDec(c.avg))} €</b></span><span>Kurs <b>${fmt(c.p,priceDec(c.p))} €</b></span><span>Käufe <b>${c.trades.filter(t=>t.vol>0).length}</b></span><span>Verkäufe <b>${c.trades.filter(t=>t.vol<0).length}</b></span></div>
-    <div class="tb">${TFS.map(t=>`<button data-tf="${t[0]}" title="${t[2]}" class="${c.tf===t[0]?'on':''}">${t[1]}</button>`).join('')}<span class="sp"></span>
+    <div class="tb">${TFS.map(t=>`<button data-tf="${t[0]}" title="${t[2]}" class="${c.tf===t[0]?'on':''}">${t[1]}</button>`).join('')}<button data-a="all" title="Ganze Kurshistorie seit dem Handelsstart auf Kraken, in Wochenkerzen">Gesamt</button><span class="sp"></span>
       <button data-a="type" title="Zwischen Kerzen-Chart und Linien-Chart wechseln">${c.type==='k'?'Kerzen':'Linie'}</button><button data-a="log" class="${c.log?'on':''}" title="Logarithmische Preisachse ein/aus">Log</button><button data-a="mk" class="${c.mk?'on':''}" title="Kauf- und Verkaufspunkte ein/aus">Käufe</button><button data-a="fit" title="Ganzen Zeitraum zeigen">Alles</button><button data-a="max" title="Chart auf den ganzen Bildschirm vergrößern oder wieder verkleinern">⤢ Maximieren</button></div>
     <div class="ch" id="ch-${c.c}"><div class="msg">${c.err?'':'Lade Kurse…'}</div></div>
     <div class="err" id="er-${c.c}">${c.err?'Kurse nicht ladbar: '+c.err:''}</div>
-    <div class="leg"><span><span class="dot" style="background:var(--up)"></span>Kauf, Punkt genau auf dem Kaufkurs</span><span><span class="dot" style="background:var(--dn)"></span>Verkauf, Punkt auf dem Verkaufskurs</span><span><span class="dot" style="background:var(--acc)"></span>Ø-Einstandskurs laut Kraken</span></div>
+    <div class="leg"><span><span class="dot" style="background:#7df0b8"></span>Kauf unter deinem Ø-Einstand (günstig)</span><span><span class="dot" style="background:#f5b942"></span>Kauf über deinem Ø-Einstand (teuer)</span><span><span class="dot" style="background:#e5679d"></span>Verkauf</span><span>Linien-Chart: grün = Kurs über Ø-Einstand, rot = darunter</span><span><span class="dot" style="background:var(--acc)"></span>Ø-Einstandskurs laut Kraken</span></div>
     <details class="tx"><summary><span>Steckbrief ${c.c}: Beschreibung, Marktkapitalisierung, Maximalmenge</span></summary><div id="info-${c.c}">${infoHTML(c)}</div></details>
     ${txTable(c)}${stTable(c,false)}`;
     grid.appendChild(card);
@@ -248,6 +248,7 @@ function renderDepot(){
       if(b.dataset.tf){setTf(c,b.dataset.tf,card);return}
       const a=b.dataset.a;
       if(a==='type'){c.type=c.type==='k'?'l':'k';b.textContent=c.type==='k'?'Kerzen':'Linie';drawChart(c)}
+      if(a==='all'){setTf(c,'10080',card);return}
       if(a==='log'){c.log=!c.log;b.classList.toggle('on',c.log);drawChart(c)}
       if(a==='mk'){c.mk=!c.mk;b.classList.toggle('on',c.mk);drawChart(c)}
       if(a==='fit'&&c.disp)c.disp.ch.timeScale().fitContent();
@@ -301,17 +302,18 @@ function drawChart(c){
   ch.priceScale('right').applyOptions({mode:c.log?1:0});
   const dec=priceDec(c.price||c.snapPrice||1);
   const pf={type:'price',precision:dec,minMove:Math.pow(10,-dec)};
-  const s=c.type==='k'?ch.addCandlestickSeries({upColor:'#26c281',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26c281',wickDownColor:'#ef5350',priceFormat:pf}):ch.addLineSeries({color:'#5b8def',lineWidth:2,priceFormat:pf});
+  const s=c.type==='k'?ch.addCandlestickSeries({upColor:'#26c281',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26c281',wickDownColor:'#ef5350',priceFormat:pf}):ch.addBaselineSeries({baseValue:{type:'price',price:c.avg},topLineColor:'#26c281',topFillColor1:'rgba(38,194,129,.30)',topFillColor2:'rgba(38,194,129,.03)',bottomLineColor:'#ef5350',bottomFillColor1:'rgba(239,83,80,.03)',bottomFillColor2:'rgba(239,83,80,.30)',lineWidth:1,priceFormat:pf});
   s.setData(c.type==='k'?c.candles:c.candles.map(k=>({time:k.time,value:k.close})));
   s.createPriceLine({price:c.avg,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Ø Einstand'});
   const first=c.candles[0].time,bucket=t=>{const i=lastIdx(c.candles,t);return i<0?null:c.candles[i].time};
   const agg=new Map();let outside=0;
   for(const t of c.trades){if(t.t<first){outside++;continue}const k=bucket(t.t);const type=t.vol>0?'buy':'sell',key=k+type,a=agg.get(key)||{time:k,type,cash:0,q:0,n:0};a.cash+=t.cash;a.q+=Math.abs(t.vol);a.n++;agg.set(key,a)}
-  if(c.mk)for(const type of ['buy','sell']){
-    const pts=[...agg.values()].filter(a=>a.type===type).sort((a,b)=>a.time-b.time).map(a=>({time:a.time,value:a.cash/a.q}));
-    if(!pts.length)continue;
-    const d=ch.addLineSeries({color:type==='buy'?'#26c281':'#ef5350',lineVisible:false,pointMarkersVisible:true,pointMarkersRadius:pts.length>60?3:4.5,lastValueVisible:false,priceLineVisible:false,crosshairMarkerVisible:false,priceFormat:pf});
-    d.setData(pts);
+  if(c.mk){
+    const all=[...agg.values()].sort((x,y)=>x.time-y.time).map(x=>({time:x.time,value:x.cash/x.q,type:x.type}));
+    const groups=[['#7df0b8',all.filter(x=>x.type==='buy'&&x.value<=c.avg)],['#f5b942',all.filter(x=>x.type==='buy'&&x.value>c.avg)],['#e5679d',all.filter(x=>x.type==='sell')]];
+    for(const [color,pts] of groups){if(!pts.length)continue;
+      const d=ch.addLineSeries({color,lineVisible:false,pointMarkersVisible:true,pointMarkersRadius:all.length>60?2.5:4,lastValueVisible:false,priceLineVisible:false,crosshairMarkerVisible:false,priceFormat:pf});
+      d.setData(pts.map(x=>({time:x.time,value:x.value})))}
   }
   const er=$('#er-'+c.c);if(er){er.style.color='var(--mut)';er.textContent=outside?outside+' ältere Trades liegen vor dem sichtbaren Kerzenzeitraum (in der Liste unten enthalten).':''}
   ch.timeScale().fitContent();
