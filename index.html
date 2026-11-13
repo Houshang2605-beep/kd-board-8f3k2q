@@ -97,6 +97,10 @@ nav button.on,.tb button.on{border-color:var(--blue);background:#1b2740}
 .card.maxc .ch{height:calc(100vh - 190px)}
 .card.maxc details{display:none}
 details.max{position:fixed;inset:0;z-index:60;background:var(--card);padding:16px;margin:0;overflow:auto;border:0}
+details.max{padding:0 16px 16px;padding-bottom:max(16px,env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+details.max>summary{position:sticky;top:0;z-index:5;background:#080d18;margin:0 -16px 8px;padding:max(12px,env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);list-style:none}
+details.max>summary::-webkit-details-marker{display:none}
+details.max>summary button.mx{background:#ff8a3d;color:#111;border-color:#ff8a3d;font-weight:650;padding:8px 14px;font-size:14px}
 details.max .sc{max-height:none}
 body.noscroll{overflow:hidden}
 .tx summary{display:flex;gap:8px;align-items:center}
@@ -144,7 +148,9 @@ input[type=number]{background:#10141d;color:var(--tx);border:1px solid var(--lin
   .tx td:first-child,.tx th:first-child{position:sticky;left:0;background:var(--card);z-index:1}
   .tx th:first-child{z-index:2}
   .tx summary{flex-wrap:wrap}
-  details.max{padding:8px}
+  details.max{padding-left:8px;padding-right:8px}
+  details.max>summary{margin-left:-8px;margin-right:-8px;padding-left:8px;padding-right:8px;flex-wrap:nowrap}
+  details.max>summary>span{display:none}
   .leg{gap:8px;font-size:11px}
   .tax3{grid-template-columns:1fr}
   .big{font-size:22px}
@@ -615,7 +621,7 @@ function csv(name,rows){const b=new Blob(['﻿'+rows.map(r=>r.join(';')).join('\
 
 /* ---------- Steuerung ---------- */
 function show(v){if(!['depot','staking','steuer'].includes(v))v='depot';document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));try{history.replaceState(null,'','#'+v)}catch(e){}}
-function renderAll(){renderDepot();renderStaking();renderTax()}
+function renderAll(){document.querySelectorAll('details.max').forEach(d=>{if(d._ph)d._ph.remove();d.remove()});document.body.classList.remove('noscroll');renderDepot();renderStaking();renderTax()}
 async function loadGecko(){try{const r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids='+COINS.map(c=>c.info.id).join(','));if(!r.ok)return;const j=await r.json();j.forEach(x=>{const c=COINS.find(c=>c.info.id===x.id);if(c)c.live={rank:x.market_cap_rank,mcap:x.market_cap,circ:x.circulating_supply,total:x.total_supply,max:x.max_supply,ath:x.ath,athd:(x.ath_date||'').slice(0,10)}});COINS.forEach(c=>{const e=$('#info-'+c.c);if(e)e.innerHTML=infoHTML(c)})}catch(e){}}
 async function loadAll(){
   const first=!COINS.some(c=>c.daily),sy=window.scrollY,rb=$('#reload');rb.disabled=true;rb.textContent='↻ lädt …';
@@ -627,8 +633,10 @@ async function loadAll(){
   $('#stand').textContent='Bestand vom '+SNAP+' · Kurse von '+new Date().toLocaleTimeString('de-DE')+(bad?' · '+bad+' Coins ohne neue Kurse':'');
 }
 document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v)};
-document.addEventListener('click',e=>{const b=e.target.closest('button.mx');if(!b)return;e.preventDefault();const d=b.closest('details');d.open=true;const on=d.classList.toggle('max');document.body.classList.toggle('noscroll',on);b.textContent=on?'⤡ Minimieren':'⤢ Maximieren'});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;document.querySelectorAll('details.max .mx').forEach(b=>b.click());document.querySelectorAll('.card.maxc [data-a=max]').forEach(b=>b.click())});
+function mxClose(d){if(!d||!d.classList.contains('max'))return;d.classList.remove('max');const b=d.querySelector('button.mx');if(b)b.textContent='⤢ Maximieren';const ph=d._ph;if(ph&&ph.parentNode){ph.parentNode.insertBefore(d,ph);ph.remove()}d._ph=null;if(!document.querySelector('details.max,.card.maxc'))document.body.classList.remove('noscroll')}
+function mxOpen(d){const ph=document.createComment('mx');d.parentNode.insertBefore(ph,d);d._ph=ph;document.body.appendChild(d);d.open=true;d.classList.add('max');const b=d.querySelector('button.mx');if(b)b.textContent='⤡ Minimieren';document.body.classList.add('noscroll');d.scrollTop=0}
+document.addEventListener('click',e=>{const b=e.target.closest('button.mx');if(!b)return;e.preventDefault();const d=b.closest('details');if(d.classList.contains('max'))mxClose(d);else mxOpen(d)});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;document.querySelectorAll('details.max').forEach(mxClose);document.querySelectorAll('.card.maxc [data-a=max]').forEach(b=>b.click())});
 $('#reload').onclick=loadAll;
 $('#theme').onclick=()=>{setTheme(store.get('theme','tokio')==='tokio'?'std':'tokio');renderAll()};
 setTheme(store.get('theme','tokio'));
