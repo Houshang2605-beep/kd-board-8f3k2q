@@ -225,7 +225,7 @@ function renderDepot(){
       ${rows.map((r,i)=>`<tr class="clk" data-c="${r.c}"><td><span class="dot" style="background:${palette[i%palette.length]}"></span><b>${r.c}</b> <span style="color:var(--mut)">${r.name}</span></td><td>${fmt(r.qty,r.qty<1?6:3)}</td><td>${fmt(r.avg,priceDec(r.avg))}</td><td>${fmt(r.p,priceDec(r.p))}</td><td>${fmt(r.mv)}</td><td class="${cls(r.pl)}">${(r.pl>=0?'+':'')+fmt(r.pl)}</td><td class="${cls(r.pl)}">${fmtP(r.pl/r.cost*100)}</td><td>${r.p>=r.avg?'<span class="up">erreicht</span>':fmtP((r.avg/r.p-1)*100)}</td><td>${fmt(r.mv/crypto*100,1)} %</td></tr>`).join('')}
       </tbody><tfoot><tr><td>Summe Krypto</td><td></td><td></td><td></td><td>${fmt(crypto)}</td><td class="${cls(pl)}">${(pl>=0?'+':'')+fmt(pl)}</td><td class="${cls(pl)}">${fmtP(pl/cost*100)}</td><td></td><td>100 %</td></tr></tfoot></table></div></div>
   </div>
-  <div class="panel"><h2>Eingesetztes Geld (blau) gegen Wert der gekauften Coins (gelb), in €</h2><div id="cum" class="ch2" style="height:240px"></div><div class="small">Blau: Käufe minus Verkäufe inkl. Gebühren. Gelb: Wert der seit 22.08.2026 gekauften Mengen zum jeweiligen Tagesschlusskurs, ohne Staking-Prämien und ohne ältere Bestände.</div></div>
+  <div class="panel"><h2>Eingesetztes Geld (blau) gegen Wert der gekauften Coins (gelb), in €</h2><div class="leg" id="cumleg" style="margin:0 0 8px"></div><div id="cum" class="ch2" style="height:240px"></div><div class="small">Liegt Gelb unter Blau, sind die gekauften Coins weniger wert als bezahlt. Fahr mit der Maus oder dem Finger über das Diagramm, um die Werte für einen Tag zu sehen. Gelb rechnet mit dem Tagesschlusskurs und nur mit den seit 22.08.2026 gekauften Mengen, ohne Staking-Prämien und ältere Bestände.</div></div>
   <div class="grid" id="grid"></div>
   <div class="note"><b>Woher die Zahlen stammen:</b> Bestand und Ø-Einstand sind der Stand aus deinem Kraken-Konto vom ${SNAP}. Käufe, Verkäufe und Staking-Prämien stammen aus dem Kraken-Hauptbuch. Kurse: Kraken, bei jedem Öffnen neu geladen; fällt das aus, gilt der Kurs vom Stand oben. Der Bestand ist nicht live.</div>
   <div class="note"><b>Zwei Verlustzahlen je Coin:</b> Führend ist die Zahl oben rechts in der Karte (Bestand × Kurs minus Ø-Einstand laut Kraken). Die Summe in der Transaktionsliste zählt nur die Käufe seit 22.08.2026 inkl. Gebühren und weicht deshalb ab: Kraken rechnet Staking-Prämien, Einzahlungen, Verkäufe und ältere Bestände ein. <b>Nicht enthalten:</b> der ETH-Kauf vom 25.08.2026 (in USD bezahlt), die xStocks-Käufe, Anschaffungen vor dem 22.08.2026. Kraken liefert je Abruf höchstens 720 Kerzen; ältere Käufe haben in kurzen Intervallen keinen Punkt, stehen aber in der Liste. Fallen mehrere Käufe in dieselbe Kerze, zeigt der Punkt ihren Durchschnittskurs; ein feineres Intervall trennt sie. Keine Anlageberatung.</div>`;
@@ -285,7 +285,12 @@ function drawCum(){
     if(haveAll){let v=0,ok=true;for(const k in hold){const p=priceAt(CM[k],d);if(p==null){ok=false;break}v+=hold[k]*p}if(ok)valL.push({time:d,value:+v.toFixed(2)})}
   }
   s.setData(inv);
-  if(valL.length){const v=ch.addLineSeries({color:'#f5b942',lineWidth:2,priceFormat:{type:'price',precision:0,minMove:1}});v.setData(valL)}
+  if(valL.length){const v=ch.addLineSeries({color:'#f5b942',lineWidth:2,priceFormat:{type:'price',precision:0,minMove:1}});v.setData(valL);ch.__v=v}
+  const lg=$('#cumleg'),li=inv.at(-1).value,lv=valL.length?valL.at(-1).value:null;
+  const put=(a,b,t)=>{lg.innerHTML=`<span><span class="dot" style="background:#5b8def"></span>Blau = eingesetztes Geld (Käufe minus Verkäufe, inkl. Gebühren): <b style="color:var(--tx)">${eur(a)}</b></span>`+(b==null?'':`<span><span class="dot" style="background:#f5b942"></span>Gelb = was diese Coins wert sind: <b style="color:var(--tx)">${eur(b)}</b></span><span>Unterschied (Gelb minus Blau): <b class="${cls(b-a)}">${sgn(b-a)} (${fmtP(a?(b-a)/a*100:0)})</b></span>`)+`<span>${t}</span>`};
+  put(li,lv,'Stand: heute');
+  const vS=ch.__v;
+  ch.subscribeCrosshairMove(p=>{if(!p.time){put(li,lv,'Stand: heute');return}const a=p.seriesData.get(s),b=ch.__v?p.seriesData.get(ch.__v):null;if(a)put(a.value,b?b.value:null,'Stand: '+dt(p.time,false))});
   ch.timeScale().fitContent();
 }
 function drawChart(c){
