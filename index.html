@@ -133,7 +133,7 @@ let charts=[],geckoLive=false;
 const yearOf=t=>new Date(t*1000).getFullYear(),NOWY=new Date().getFullYear();
 const YEARS=[...new Set([...TRADES.map(t=>yearOf(t[0])),...STAKE.map(s=>yearOf(s[0])),NOWY])].sort();
 let taxYear=NOWY;
-const COINS=BAL.map(b=>({...b,info:INFO[b.c],trades:TRADES.filter(t=>t[1]===b.c).map(t=>({t:t[0],vol:t[2],cash:t[3],fee:t[4]})),stake:STAKE.filter(s=>s[2]===b.c),daily:null,candles:null,price:null,err:null,tf:'1440',log:false,mk:true,type:'k',disp:null}));
+const COINS=BAL.map(b=>({...b,info:INFO[b.c],trades:TRADES.filter(t=>t[1]===b.c).map(t=>({t:t[0],vol:t[2],cash:t[3],fee:t[4]})),stake:STAKE.filter(s=>s[2]===b.c),daily:null,candles:null,price:null,err:null,tf:'1440',log:false,mk:true,type:'k',cur:'EUR',curLbl:'EUR',fx:null,disp:null}));
 const CM=Object.fromEntries(COINS.map(c=>[c.c,c]));
 
 async function fetchOHLC(pair,tf){
@@ -147,6 +147,14 @@ async function fetchOHLC(pair,tf){
 function lastIdx(a,t){let lo=0,hi=a.length-1,r=-1;while(lo<=hi){const m=(lo+hi)>>1;if(a[m].time<=t){r=m;lo=m+1}else hi=m-1}return r}
 function priceAt(c,t){if(!c||!c.daily)return null;const i=lastIdx(c.daily,t);return i<0?null:c.daily[i].close}
 const P=c=>c.price||c.snapPrice;
+const FX={};const fxC=async(p,tf)=>FX[p+tf]||(FX[p+tf]=await fetchOHLC(p,tf));
+async function loadCandles(c,tf){
+  if(c.cur==='EUR'){c.fx=null;c.curLbl='EUR';return tf==='1440'&&c.daily?c.daily:await fetchOHLC(c.pair,tf)}
+  const base=c.pair.slice(0,-3);let k;
+  try{k=await fetchOHLC(base+'USDT',tf);c.fx={k:await fxC('USDTEUR',tf),div:true};c.curLbl='USDT'}
+  catch(e){k=await fetchOHLC(base+'USD',tf);c.fx={k:await fxC('EURUSD',tf),div:false};c.curLbl='USD'}
+  return k}
+function conv(c,eur,t){if(!c.fx)return eur;const r=c.fx.k[Math.max(lastIdx(c.fx.k,t),0)].close;return c.fx.div?eur/r:eur*r}
 
 /* ---------- Steuer-Rechenkern: FIFO je Coin ---------- */
 function taxCalc(){
@@ -237,7 +245,7 @@ function renderDepot(){
     card.innerHTML=`<div class="hd"><div class="t">${c.c}<small>${c.name} · ${c.pair}</small></div><div class="pl ${cls(c.pl)}">${sgn(c.pl)} (${fmtP(c.pl/c.cost*100)})</div></div>
     <div class="stats"><span>Bestand <b>${fmt(c.qty,c.qty<1?6:3)}</b></span><span>Ø-Einstand <b>${fmt(c.avg,priceDec(c.avg))} €</b></span><span>Kurs <b>${fmt(c.p,priceDec(c.p))} €</b></span><span>Käufe <b>${c.trades.filter(t=>t.vol>0).length}</b></span><span>Verkäufe <b>${c.trades.filter(t=>t.vol<0).length}</b></span></div>
     <div class="tb">${TFS.map(t=>`<button data-tf="${t[0]}" title="${t[2]}" class="${c.tf===t[0]?'on':''}">${t[1]}</button>`).join('')}<button data-a="all" title="Ganze Kurshistorie seit dem Handelsstart auf Kraken, in Wochenkerzen">Gesamt</button><span class="sp"></span>
-      <button data-a="type" title="Zwischen Kerzen-Chart und Linien-Chart wechseln">${c.type==='k'?'Kerzen':'Linie'}</button><button data-a="log" class="${c.log?'on':''}" title="Logarithmische Preisachse ein/aus">Log</button><button data-a="mk" class="${c.mk?'on':''}" title="Kauf- und Verkaufspunkte ein/aus">Käufe</button><button data-a="fit" title="Ganzen Zeitraum zeigen">Alles</button><button data-a="max" title="Chart auf den ganzen Bildschirm vergrößern oder wieder verkleinern">⤢ Maximieren</button></div>
+      <button data-a="cur" title="Chart-Währung wechseln: Euro oder US-Dollar-Stablecoin USDT">${c.cur==='EUR'?'EUR':'USDT'}</button><button data-a="type" title="Zwischen Kerzen-Chart und Linien-Chart wechseln">${c.type==='k'?'Kerzen':'Linie'}</button><button data-a="log" class="${c.log?'on':''}" title="Logarithmische Preisachse ein/aus">Log</button><button data-a="mk" class="${c.mk?'on':''}" title="Kauf- und Verkaufspunkte ein/aus">Käufe</button><button data-a="fit" title="Ganzen Zeitraum zeigen">Alles</button><button data-a="max" title="Chart auf den ganzen Bildschirm vergrößern oder wieder verkleinern">⤢ Maximieren</button></div>
     <div class="ch" id="ch-${c.c}"><div class="msg">${c.err?'':'Lade Kurse…'}</div></div>
     <div class="err" id="er-${c.c}">${c.err?'Kurse nicht ladbar: '+c.err:''}</div>
     <div class="leg"><span><span class="dot" style="background:#7df0b8"></span>Kauf unter deinem Ø-Einstand (günstig)</span><span><span class="dot" style="background:#f5b942"></span>Kauf über deinem Ø-Einstand (teuer)</span><span><span class="dot" style="background:#e5679d"></span>Verkauf</span><span>Linien-Chart: grün = Kurs über Ø-Einstand, rot = darunter</span><span><span class="dot" style="background:var(--acc)"></span>Ø-Einstandskurs laut Kraken</span></div>
@@ -248,6 +256,7 @@ function renderDepot(){
       if(b.dataset.tf){setTf(c,b.dataset.tf,card);return}
       const a=b.dataset.a;
       if(a==='type'){c.type=c.type==='k'?'l':'k';b.textContent=c.type==='k'?'Kerzen':'Linie';drawChart(c)}
+      if(a==='cur'){c.cur=c.cur==='EUR'?'USDT':'EUR';b.textContent=c.cur;b.classList.toggle('on',c.cur!=='EUR');setTf(c,c.tf,card);return}
       if(a==='all'){setTf(c,'10080',card);return}
       if(a==='log'){c.log=!c.log;b.classList.toggle('on',c.log);drawChart(c)}
       if(a==='mk'){c.mk=!c.mk;b.classList.toggle('on',c.mk);drawChart(c)}
@@ -261,7 +270,7 @@ function renderDepot(){
 async function setTf(c,tf,card){
   c.tf=tf;card.querySelectorAll('[data-tf]').forEach(b=>b.classList.toggle('on',b.dataset.tf===tf));
   const er=$('#er-'+c.c);er.textContent='';
-  try{c.candles=tf==='1440'&&c.daily?c.daily:await fetchOHLC(c.pair,tf);drawChart(c)}catch(e){er.textContent='Kurse für dieses Intervall nicht ladbar: '+(e.message||e)}
+  try{c.candles=await loadCandles(c,tf);drawChart(c)}catch(e){er.textContent='Kurse für dieses Intervall nicht ladbar: '+(e.message||e)}
 }
 function drawDonut(rows,total){
   const cv=$('#donut'),ctx=cv.getContext('2d');ctx.clearRect(0,0,260,260);
@@ -300,23 +309,24 @@ function drawChart(c){
   el.innerHTML='';
   const ch=LightweightCharts.createChart(el,baseOpts(el,+c.tf<1440));c.disp=track(ch,el);
   ch.priceScale('right').applyOptions({mode:c.log?1:0});
-  const dec=priceDec(c.price||c.snapPrice||1);
+  const nowT=Date.now()/1000,avgC=conv(c,c.avg,nowT);
+  const dec=priceDec(c.candles.at(-1).close||1);
   const pf={type:'price',precision:dec,minMove:Math.pow(10,-dec)};
-  const s=c.type==='k'?ch.addCandlestickSeries({upColor:'#26c281',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26c281',wickDownColor:'#ef5350',priceFormat:pf}):ch.addBaselineSeries({baseValue:{type:'price',price:c.avg},topLineColor:'#26c281',topFillColor1:'rgba(38,194,129,.30)',topFillColor2:'rgba(38,194,129,.03)',bottomLineColor:'#ef5350',bottomFillColor1:'rgba(239,83,80,.03)',bottomFillColor2:'rgba(239,83,80,.30)',lineWidth:1,priceFormat:pf});
+  const s=c.type==='k'?ch.addCandlestickSeries({upColor:'#26c281',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26c281',wickDownColor:'#ef5350',priceFormat:pf}):ch.addBaselineSeries({baseValue:{type:'price',price:avgC},topLineColor:'#26c281',topFillColor1:'rgba(38,194,129,.30)',topFillColor2:'rgba(38,194,129,.03)',bottomLineColor:'#ef5350',bottomFillColor1:'rgba(239,83,80,.03)',bottomFillColor2:'rgba(239,83,80,.30)',lineWidth:1,priceFormat:pf});
   s.setData(c.type==='k'?c.candles:c.candles.map(k=>({time:k.time,value:k.close})));
-  s.createPriceLine({price:c.avg,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Ø Einstand'});
+  s.createPriceLine({price:avgC,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:c.fx?'Ø Einstand (heutiger Wechselkurs)':'Ø Einstand'});
   if(c.candles.length<720)s.setMarkers([{time:c.candles[0].time,position:'belowBar',shape:'circle',color:'#9aa5b8',size:0.5,text:'🦖 erster Kurs auf Kraken'}]);
   const first=c.candles[0].time,bucket=t=>{const i=lastIdx(c.candles,t);return i<0?null:c.candles[i].time};
   const agg=new Map();let outside=0;
   for(const t of c.trades){if(t.t<first){outside++;continue}const k=bucket(t.t);const type=t.vol>0?'buy':'sell',key=k+type,a=agg.get(key)||{time:k,type,cash:0,q:0,n:0};a.cash+=t.cash;a.q+=Math.abs(t.vol);a.n++;agg.set(key,a)}
   if(c.mk){
-    const all=[...agg.values()].sort((x,y)=>x.time-y.time).map(x=>({time:x.time,value:x.cash/x.q,type:x.type}));
-    const groups=[['#7df0b8',all.filter(x=>x.type==='buy'&&x.value<=c.avg)],['#f5b942',all.filter(x=>x.type==='buy'&&x.value>c.avg)],['#e5679d',all.filter(x=>x.type==='sell')]];
+    const all=[...agg.values()].sort((x,y)=>x.time-y.time).map(x=>({time:x.time,eur:x.cash/x.q,value:conv(c,x.cash/x.q,x.time),type:x.type}));
+    const groups=[['#7df0b8',all.filter(x=>x.type==='buy'&&x.eur<=c.avg)],['#f5b942',all.filter(x=>x.type==='buy'&&x.eur>c.avg)],['#e5679d',all.filter(x=>x.type==='sell')]];
     for(const [color,pts] of groups){if(!pts.length)continue;
       const d=ch.addLineSeries({color,lineVisible:false,pointMarkersVisible:true,pointMarkersRadius:all.length>60?2.5:4,lastValueVisible:false,priceLineVisible:false,crosshairMarkerVisible:false,priceFormat:pf});
       d.setData(pts.map(x=>({time:x.time,value:x.value})))}
   }
-  const er=$('#er-'+c.c);if(er){er.style.color='var(--mut)';er.textContent=outside?outside+' ältere Trades liegen vor dem sichtbaren Kerzenzeitraum (in der Liste unten enthalten).':''}
+  const er=$('#er-'+c.c);if(er){er.style.color='var(--mut)';er.textContent=(c.fx?'Chart in '+c.curLbl+(c.curLbl==='USD'?' (kein USDT-Paar auf Kraken)':'')+'. Deine Käufe sind zum Wechselkurs der jeweiligen Kerze umgerechnet; Kennzahlen und Listen bleiben in Euro. ':'')+(outside?outside+' ältere Trades liegen vor dem sichtbaren Kerzenzeitraum (in der Liste unten enthalten).':'')}
   ch.timeScale().fitContent();
   const tip=document.createElement('div');tip.style.cssText='position:absolute;display:none;z-index:3;background:#0d1017;border:1px solid #232b3a;border-radius:8px;padding:6px 9px;font-size:12px;pointer-events:none;white-space:nowrap';el.appendChild(tip);
   ch.subscribeCrosshairMove(prm=>{
@@ -405,7 +415,7 @@ function renderAll(){renderDepot();renderStaking();renderTax()}
 async function loadGecko(){try{const r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids='+COINS.map(c=>c.info.id).join(','));if(!r.ok)return;const j=await r.json();j.forEach(x=>{const c=COINS.find(c=>c.info.id===x.id);if(c)c.live={rank:x.market_cap_rank,mcap:x.market_cap,circ:x.circulating_supply,total:x.total_supply,max:x.max_supply,ath:x.ath,athd:(x.ath_date||'').slice(0,10)}});COINS.forEach(c=>{const e=$('#info-'+c.c);if(e)e.innerHTML=infoHTML(c)})}catch(e){}}
 async function loadAll(){
   renderAll();
-  await Promise.all(COINS.map(async c=>{try{c.err=null;c.daily=await fetchOHLC(c.pair,'1440');c.price=c.daily.at(-1).close;c.candles=c.tf==='1440'?c.daily:await fetchOHLC(c.pair,c.tf)}catch(e){c.err=String(e.message||e)+(e instanceof TypeError?' (Netzwerk oder Browser-Sperre?)':'')}}));
+  await Promise.all(COINS.map(async c=>{try{c.err=null;c.daily=await fetchOHLC(c.pair,'1440');c.price=c.daily.at(-1).close;c.candles=c.tf==='1440'&&c.cur==='EUR'?c.daily:await loadCandles(c,c.tf)}catch(e){c.err=String(e.message||e)+(e instanceof TypeError?' (Netzwerk oder Browser-Sperre?)':'')}}));
   document.body.classList.remove('noscroll');renderAll();loadGecko();
 }
 document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v)};
