@@ -305,6 +305,7 @@ function drawChart(c){
   const s=c.type==='k'?ch.addCandlestickSeries({upColor:'#26c281',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26c281',wickDownColor:'#ef5350',priceFormat:pf}):ch.addBaselineSeries({baseValue:{type:'price',price:c.avg},topLineColor:'#26c281',topFillColor1:'rgba(38,194,129,.30)',topFillColor2:'rgba(38,194,129,.03)',bottomLineColor:'#ef5350',bottomFillColor1:'rgba(239,83,80,.03)',bottomFillColor2:'rgba(239,83,80,.30)',lineWidth:1,priceFormat:pf});
   s.setData(c.type==='k'?c.candles:c.candles.map(k=>({time:k.time,value:k.close})));
   s.createPriceLine({price:c.avg,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Ø Einstand'});
+  if(c.candles.length<720)s.setMarkers([{time:c.candles[0].time,position:'belowBar',shape:'circle',color:'#9aa5b8',size:0.5,text:'🦖 erster Kurs auf Kraken'}]);
   const first=c.candles[0].time,bucket=t=>{const i=lastIdx(c.candles,t);return i<0?null:c.candles[i].time};
   const agg=new Map();let outside=0;
   for(const t of c.trades){if(t.t<first){outside++;continue}const k=bucket(t.t);const type=t.vol>0?'buy':'sell',key=k+type,a=agg.get(key)||{time:k,type,cash:0,q:0,n:0};a.cash+=t.cash;a.q+=Math.abs(t.vol);a.n++;agg.set(key,a)}
