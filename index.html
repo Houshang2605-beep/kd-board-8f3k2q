@@ -150,7 +150,7 @@ input[type=number]{background:#10141d;color:var(--tx);border:1px solid var(--lin
   <h1>Kraken Depot <span id="stand"></span></h1>
   <div class="ctl">
     <nav><button data-v="depot">Depot</button><button data-v="staking">Staking</button><button data-v="steuer">Steuer</button></nav>
-    <button id="theme" title="Optik wechseln: Standard oder Tokio (Tokyo Night)">Optik: Standard</button><button id="reload">Kurse neu laden</button>
+    <button id="theme" title="Optik wechseln: Standard oder Tokio (Tokyo Night)">Optik: Standard</button><button id="reload" title="Alle Kurse neu von Kraken laden und alles neu berechnen">↻ Aktualisieren</button>
   </div>
 </header>
 <main><div id="v-depot" class="view"></div><div id="v-staking" class="view"></div><div id="v-steuer" class="view"></div></main>
@@ -365,7 +365,7 @@ function renderDepot(){
   <div class="grid" id="grid"></div>
   <div class="note"><b>Woher die Zahlen stammen:</b> Bestand und Ø-Einstand sind der Stand aus deinem Kraken-Konto vom ${SNAP}. Käufe, Verkäufe und Staking-Prämien stammen aus dem Kraken-Hauptbuch. Kurse: Kraken, bei jedem Öffnen neu geladen; fällt das aus, gilt der Kurs vom Stand oben. Der Bestand ist nicht live.</div>
   <div class="note"><b>Zwei Verlustzahlen je Coin:</b> Führend ist die Zahl oben rechts in der Karte (Bestand × Kurs minus Ø-Einstand laut Kraken). Die Summe in der Transaktionsliste zählt nur die Käufe seit 22.08.2026 inkl. Gebühren und weicht deshalb ab: Kraken rechnet Staking-Prämien, Einzahlungen, Verkäufe und ältere Bestände ein. <b>Nicht enthalten:</b> der ETH-Kauf vom 25.08.2026 (in USD bezahlt), die xStocks-Käufe, Anschaffungen vor dem 22.08.2026. Der Knopf „Gesamt“ zeigt die ganze Kurshistorie seit dem Handelsstart des Coins auf Kraken in Wochenkerzen (nicht seit Erfindung des Coins; Bitcoin z. B. ab 2013). Kraken liefert je Abruf höchstens 720 Kerzen; ältere Käufe haben in kurzen Intervallen keinen Punkt, stehen aber in der Liste. Fallen mehrere Käufe in dieselbe Kerze, zeigt der Punkt ihren Durchschnittskurs; ein feineres Intervall trennt sie. Keine Anlageberatung.</div>`;
-  $('#stand').textContent='Stand Bestand: '+SNAP;
+  
   drawDonut(rows,crypto);drawCum();
   const grid=$('#grid');
   rows.forEach(c=>{
@@ -607,10 +607,13 @@ function show(v){if(!['depot','staking','steuer'].includes(v))v='depot';document
 function renderAll(){renderDepot();renderStaking();renderTax()}
 async function loadGecko(){try{const r=await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids='+COINS.map(c=>c.info.id).join(','));if(!r.ok)return;const j=await r.json();j.forEach(x=>{const c=COINS.find(c=>c.info.id===x.id);if(c)c.live={rank:x.market_cap_rank,mcap:x.market_cap,circ:x.circulating_supply,total:x.total_supply,max:x.max_supply,ath:x.ath,athd:(x.ath_date||'').slice(0,10)}});COINS.forEach(c=>{const e=$('#info-'+c.c);if(e)e.innerHTML=infoHTML(c)})}catch(e){}}
 async function loadAll(){
-  renderAll();
+  const first=!COINS.some(c=>c.daily),sy=window.scrollY,rb=$('#reload');rb.disabled=true;rb.textContent='↻ lädt …';
+  if(first)renderAll();
   await Promise.all(COINS.map(async c=>{try{c.err=null;c.daily=await fetchOHLC(c.pair,'1440');c.price=c.daily.at(-1).close;c.candles=c.tf==='1440'&&c.cur==='EUR'?c.daily:await loadCandles(c,c.tf)}catch(e){c.err=String(e.message||e)+(e instanceof TypeError?' (Netzwerk oder Browser-Sperre?)':'')}}));
   await Promise.all(Object.entries(AUXP).map(async([k,p])=>{try{AX[k]={daily:await fxC(p,'1440')}}catch(e){}}));
-  document.body.classList.remove('noscroll');renderAll();loadGecko();
+  document.body.classList.remove('noscroll');renderAll();loadGecko();window.scrollTo(0,sy);
+  rb.disabled=false;rb.textContent='↻ Aktualisieren';const bad=COINS.filter(c=>c.err).length;
+  $('#stand').textContent='Bestand vom '+SNAP+' · Kurse von '+new Date().toLocaleTimeString('de-DE')+(bad?' · '+bad+' Coins ohne neue Kurse':'');
 }
 document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v)};
 document.addEventListener('click',e=>{const b=e.target.closest('button.mx');if(!b)return;e.preventDefault();const d=b.closest('details');d.open=true;const on=d.classList.toggle('max');document.body.classList.toggle('noscroll',on);b.textContent=on?'⤡ Minimieren':'⤢ Maximieren'});
