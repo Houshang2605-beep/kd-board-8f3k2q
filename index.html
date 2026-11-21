@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Kraken Depot">
 <meta name="theme-color" content="#0d1017">
 <title>Kraken Depot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
 
 :root{--bg:#0d1017;--card:#151a24;--line:#232b3a;--tx:#e6eaf2;--mut:#8b95a8;--up:#26c281;--dn:#ef5350;--acc:#f5b942;--blue:#5b8def}
@@ -160,6 +162,73 @@ input[type=number]{background:#10141d;color:var(--tx);border:1px solid var(--lin
 }
 @supports(padding:max(0px)){header{padding-top:max(8px,env(safe-area-inset-top))}main{padding-bottom:max(20px,env(safe-area-inset-bottom))}}
 .small{font-size:12px;color:var(--mut);line-height:1.6}
+
+/* ---------- Performance-Kopf (Hero) und Kennzahlen ---------- */
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-feature-settings:"cv11","ss01"}
+.num{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:0;padding:0;overflow:hidden;margin-bottom:14px}
+.hero>section{padding:22px 24px;min-width:0}
+.hero>section+section{border-left:1px solid var(--line)}
+.eyb{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.eyb .sep{opacity:.4}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--mut)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 3px color-mix(in srgb,var(--up) 25%,transparent)}
+.hv{font-size:52px;line-height:1.05;font-weight:600;margin:12px 0 6px;letter-spacing:-.03em}
+.hv small{font-size:.42em;color:var(--mut);font-weight:500;margin-left:6px;letter-spacing:0}
+.hd2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-weight:600;font-size:13px}
+.chip.dn{background:color-mix(in srgb,var(--dn) 15%,transparent);color:var(--dn)}
+.chip.up{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
+.hd2 .ctx{color:var(--mut);font-size:13px}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:20px;border-top:1px solid var(--line)}
+.trio>div{padding:12px 12px 0 0;min-width:0}
+.trio>div+div{padding-left:12px;border-left:1px solid var(--line)}
+.trio .k{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+.trio .v2{font-size:19px;font-weight:600;margin-top:3px}
+.trio .s2{color:var(--mut);font-size:12px;margin-top:1px}
+.alloc{margin-top:18px}
+.alloc .bar3{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--line);gap:2px}
+.alloc .bar3 i{display:block;height:100%}
+.alloc .lg3{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:8px;font-size:12px;color:var(--mut)}
+.alloc .lg3 b{color:var(--tx);font-weight:600;margin-left:4px}
+.spark{margin-top:18px}
+.spark .sh{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
+.spark svg{display:block;width:100%;height:92px;margin-top:6px;overflow:visible}
+.spark .sf{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:var(--mut);margin-top:6px}
+.spark .sf b{font-weight:600}
+.h3{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:600;margin:0 0 14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.wf{display:grid;gap:2px}
+.wf .r{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.6fr) auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
+.wf .r:last-child{border-bottom:0}
+.wf .r.sub,.wf .r.tot{border-bottom:1px solid var(--line);font-weight:600}
+.wf .r.tot{border-top:1px solid var(--line);border-bottom:0;padding-top:10px;margin-top:2px}
+.wf .lb{font-size:13px;min-width:0}
+.wf .lb small{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:1px}
+.wf .tr{position:relative;height:16px;background:color-mix(in srgb,var(--line) 45%,transparent);border-radius:3px}
+.wf .tr i{position:absolute;top:2px;bottom:2px;border-radius:2px;min-width:2px}
+.wf .tr i.n{background:var(--blue)}
+.wf .tr i.t{background:var(--tx);opacity:.85}
+.wf .tr i.p{background:var(--up)}
+.wf .tr i.m{background:var(--dn)}
+.wf .vl{font-size:13px;text-align:right;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;overflow:hidden}
+.metrics>section{padding:16px 20px;min-width:0}
+.metrics>section+section{border-left:1px solid var(--line)}
+.metrics dl{margin:0;display:grid;gap:0}
+.metrics dl>div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent);font-size:13px}
+.metrics dl>div:last-child{border-bottom:0}
+.metrics dt{color:var(--mut);min-width:0}
+.metrics dd{margin:0;text-align:right;font-weight:500;min-width:0;overflow-wrap:anywhere}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics>section:nth-child(3){border-left:0}.metrics>section:nth-child(n+3){border-top:1px solid var(--line)}}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.hero>section+section{border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:700px){
+  .hero>section{padding:16px 14px}.hv{font-size:40px}
+  .trio{grid-template-columns:1fr 1fr}.trio>div:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--line);margin-top:10px}
+  .metrics{grid-template-columns:1fr}.metrics>section{border-left:0!important;padding:12px 14px}.metrics>section+section{border-top:1px solid var(--line)}
+  .wf .r{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.wf .tr{grid-column:1/-1;grid-row:2;height:10px}
+}
+html[data-theme=tokio] .hv{text-shadow:0 0 34px rgba(255,138,61,.25)}
+html[data-theme=tokio] .hero{border-top:1px solid rgba(255,138,61,.45)}
 </style>
 </head>
 <body>
@@ -348,6 +417,104 @@ function infoHTML(c){
   <div>Start<b>${i.start}</b></div></div><div class="small" style="margin-top:6px">Quelle Marktdaten: ${src}. Beschreibung: eigene Kurzfassung, keine Anlageempfehlung.</div>`;
 }
 
+
+/* ---------- Performance-Kopf ---------- */
+function heroHTML(rows,K){
+  const {val,crypto,xs,cost,pl,fees,vol,stNow}=K;
+  const depEur=DEP.reduce((s,d)=>s+d[1],0),depFee=DEP.reduce((s,d)=>s+d[2],0);
+  let S=null;try{S=cumSeries()}catch(e){}
+  const netInv=S&&S.inv.length?S.inv.at(-1).value:depEur-depFee;
+  const coinFlow=netInv-(depEur-depFee);
+  const tot=val-netInv,totP=netInv?tot/netInv*100:0,rest=val-netInv-pl;
+  const t0=DEP[0][0],days=Math.max(1,Math.round((Date.now()/1000-t0)/86400));
+  // Ergebnis-Brücke
+  const steps=[
+    {l:'Euro eingezahlt',s:`${DEP.length} Einzahlungen`,a:0,b:depEur,k:'n'},
+    {l:'Gebühren der Einzahlungen',a:depEur,b:depEur-depFee},
+    {l:'Coins über Blockchain, netto',s:'zum Kurs am Buchungstag',a:depEur-depFee,b:netInv},
+    {l:'Netto eingezahltes Kapital',a:0,b:netInv,k:'t',c:'sub'},
+    {l:'Kursentwicklung Krypto',s:'unrealisiert, gegen Ø-Einstand laut Kraken',a:netInv,b:netInv+pl},
+    {l:'Übrige Effekte',s:'Saldo: Handelsgebühren, Staking, Boni, Derivate, xStocks, Bargeld',a:netInv+pl,b:val,est:1},
+    {l:'Kontowert heute',a:0,b:val,k:'t',c:'tot'}
+  ].filter(x=>x.c||Math.abs(x.b-x.a)>=0.005);
+  const mx=Math.max(...steps.flatMap(x=>[x.a,x.b]))*1.04||1;
+  const wf=steps.map(x=>{const lo=Math.min(x.a,x.b),hi=Math.max(x.a,x.b),d=x.b-x.a,k=x.k||(d>=0?'p':'m');
+    const v=x.c?eur(x.b):(d>=0?'+':'−')+eur(Math.abs(d));
+    return `<div class="r ${x.c||''}"><div class="lb">${x.l}${x.est?' <span class="est">rechnerischer Rest</span>':''}${x.s?`<small>${x.s}</small>`:''}</div><div class="tr"><i class="${k}" style="left:${lo/mx*100}%;width:${(hi-lo)/mx*100}%"></i></div><div class="vl num ${x.c||x.k==='n'?'':cls(d)}">${v}</div></div>`}).join('');
+  // Verlauf: Wert der Coins minus netto eingezahlt
+  let spark='';
+  if(S&&S.valL.length>1){
+    const D=S.valL.map((v,i)=>({t:v.time,d:v.value-S.inv[i].value}));
+    let lo=D[0],hi=D[0];D.forEach(x=>{if(x.d<lo.d)lo=x;if(x.d>hi.d)hi=x});
+    const W=600,H=92,pad=6,mn=Math.min(0,lo.d),mxv=Math.max(0,hi.d),rg=(mxv-mn)||1;
+    const X=i=>i/(D.length-1)*W,Y=v=>pad+(mxv-v)/rg*(H-2*pad),z=Y(0);
+    const pts=D.map((x,i)=>`${X(i).toFixed(1)},${Y(x.d).toFixed(1)}`).join(' ');
+    const last=D.at(-1),col=last.d>=0?'var(--up)':'var(--dn)';
+    spark=`<div class="spark"><div class="sh"><span>Verlauf: Coins im Konto minus netto eingezahlt</span><span>${dt(D[0].t,false)} – heute</span></div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Verlauf des Ergebnisses der Coins seit dem Start">
+      <defs><linearGradient id="hgf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <line x1="0" x2="${W}" y1="${z}" y2="${z}" stroke="var(--mut)" stroke-opacity=".45" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,${z} ${pts} ${W},${z}" fill="url(#hgf)"/>
+      <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+      <circle cx="${W}" cy="${Y(last.d)}" r="3.5" fill="${col}"/>
+    </svg>
+    <div class="sf"><span>Bester Stand <b class="num ${cls(hi.d)}">${sgn(hi.d)}</b> am ${dt(hi.t,false)}</span><span>Tiefster Stand <b class="num dn">${sgn(lo.d)}</b> am ${dt(lo.t,false)}</span><span>Heute <b class="num ${cls(last.d)}">${sgn(last.d)}</b></span></div></div>`;
+  }
+  const al=[['Krypto',crypto,'var(--blue)'],['xStocks',xs,'var(--acc)'],['Bargeld',CASH_EUR,'var(--mut)']];
+  const lend=LOAN.collateral?LOAN.active/LOAN.collateral*100:null;
+  const bci=XFER.filter(x=>x[2]>0),bco=XFER.filter(x=>x[2]<0),uniq=a=>a.map(x=>x[1]).filter((v,i,q)=>q.indexOf(v)===i);
+  const sumK=(L,k,sg)=>fmt(sg*L.filter(x=>x[1]===k).reduce((s,x)=>s+x[2],0),4)+' '+k;
+  return `
+  <div class="panel hero">
+    <section>
+      <div class="eyb"><span>Kontowert Kraken</span><span class="sep">|</span><span>seit ${dt(t0,false)} · ${days} Tage</span><span class="sep">|</span><span class="live"><i></i>Kurse ${COINS.some(c=>c.err)?'teilweise ':''}geladen</span></div>
+      <div class="hv num">${fmt(val)}<small>€</small></div>
+      <div class="hd2"><span class="chip ${cls(tot)} num">${tot>=0?'▲':'▼'} ${sgn(tot)}</span><span class="chip ${cls(tot)} num">${fmtP(totP)}</span><span class="ctx">gegenüber netto eingezahlt ${eur(netInv)}</span></div>
+      <div class="trio">
+        <div><div class="k">Netto eingezahlt</div><div class="v2 num">${eur(netInv)}</div><div class="s2">Euro und Coins, nach Gebühr</div></div>
+        <div><div class="k">Krypto unrealisiert</div><div class="v2 num ${cls(pl)}">${sgn(pl)}</div><div class="s2 num ${cls(pl)}">${fmtP(cost?pl/cost*100:0)} auf ${eur(cost)}</div></div>
+        <div><div class="k">Bis Einstand nötig</div><div class="v2 num">${crypto<cost?fmtP((cost/crypto-1)*100):'<span class="up">erreicht</span>'}</div><div class="s2">Kursanstieg Krypto gesamt</div></div>
+      </div>
+      <div class="alloc"><div class="bar3">${al.filter(a=>a[1]>0).map(a=>`<i style="width:${a[1]/val*100}%;background:${a[2]}"></i>`).join('')}</div>
+        <div class="lg3">${al.map(a=>`<span><span class="dot" style="background:${a[2]}"></span>${a[0]}<b class="num">${eur(a[1])}</b> · ${fmt(val?a[1]/val*100:0,1)} %</span>`).join('')}</div></div>
+      ${spark}
+    </section>
+    <section>
+      <div class="h3"><span>Ergebnis-Brücke: vom eingezahlten Geld zum Kontowert</span><span class="num">${eur(netInv)} → ${eur(val)}</span></div>
+      <div class="wf">${wf}</div>
+      <div class="small" style="margin-top:10px">Balken auf einer gemeinsamen Skala von 0 bis ${eur(mx,0)}. Blau: Einzahlung, weiß: Zwischensumme, grün und rot: was dazukam und was verloren ging. Der Wert für Blockchain-Coins ist eine Näherung zum Tageskurs.</div>
+    </section>
+  </div>
+  <div class="panel metrics">
+    <section><div class="h3"><span>Kosten</span></div><dl>
+      <div><dt>Handelsgebühren</dt><dd class="num">${eur(fees)}</dd></div>
+      <div><dt>Gebührenquote</dt><dd class="num">${fmt(vol?fees/vol*100:0,2)} % · ${fmt(vol?fees/vol*1e4:0,0)} bp</dd></div>
+      <div><dt>Handelsvolumen</dt><dd class="num">${eur(vol)}</dd></div>
+      <div><dt>Trades</dt><dd class="num">${TRADES.length}</dd></div>
+      <div><dt>Einzahlungsgebühren</dt><dd class="num">${eur(depFee)}</dd></div>
+    </dl></section>
+    <section><div class="h3"><span>Erträge</span></div><dl>
+      <div><dt>Staking, Wert heute</dt><dd class="num up">${eur(stNow,2)}</dd></div>
+      <div><dt>Staking-Gutschriften</dt><dd class="num">${STAKE.length} seit 19.04.2026</dd></div>
+      <div><dt>Kraken-Boni</dt><dd class="num">${BONUS.length} Gutschriften</dd></div>
+      <div><dt>Derivate (24.08.2026)</dt><dd class="num dn">${fmt(DERIV.usd)} $ <span class="est">≈ ${eur(DERIV.eur)}</span></dd></div>
+    </dl></section>
+    <section><div class="h3"><span>Bewegungen</span></div><dl>
+      <div><dt>Euro-Einzahlungen</dt><dd class="num">${DEP.length} · ${eur(depEur)}</dd></div>
+      <div><dt>Euro-Auszahlungen</dt><dd class="num">keine</dd></div>
+      <div><dt>Blockchain ein (${bci.length})</dt><dd class="num">${uniq(bci).map(k=>sumK(bci,k,1)).join(' · ')||'–'}</dd></div>
+      <div><dt>Blockchain aus (${bco.length})</dt><dd class="num">${uniq(bco).map(k=>sumK(bco,k,-1)).join(' · ')||'–'}</dd></div>
+      <div><dt>Netzwerkgebühren</dt><dd class="num">${bco.map(x=>fmt(x[3],4)+' '+x[1]).join(', ')||'–'}</dd></div>
+    </dl></section>
+    <section><div class="h3"><span>Flexline-Kredit</span></div><dl>
+      <div><dt>Offen</dt><dd class="num">${eur(LOAN.active)}</dd></div>
+      <div><dt>Sicherheitswert</dt><dd class="num">${eur(LOAN.collateral)}</dd></div>
+      <div><dt>Beleihungsquote</dt><dd class="num">${lend==null?'–':fmt(lend,1)+' %'}</dd></div>
+      <div><dt>Gebühr je Aufnahme</dt><dd class="num">${fmt(LOAN.feePct,1)} % <span class="est">beobachtet</span></dd></div>
+      <div><dt>Stand</dt><dd class="num">${SNAP.split(',')[0]}</dd></div>
+    </dl></section>
+  </div>`;
+}
 /* ---------- Depot-Ansicht ---------- */
 function renderDepot(){
   charts.forEach(c=>{try{c.remove()}catch(e){}});charts=[];
@@ -356,20 +523,7 @@ function renderDepot(){
   const buys=TRADES.filter(t=>t[2]>0),invested=buys.reduce((s,t)=>s+t[3]+t[4],0),fees=TRADES.reduce((s,t)=>s+t[4],0),vol=TRADES.reduce((s,t)=>s+t[3],0);
   const stNow=COINS.reduce((s,c)=>s+c.stake.reduce((a,x)=>a+x[3],0)*P(c),0);
   $('#v-depot').innerHTML=`
-  <div class="kpis">
-    <div class="kpi"><div class="l">Gesamtwert Konto</div><div class="v">${eur(val)}</div><div class="s">Krypto ${eur(crypto)} · xStocks ${eur(xs)} · Bargeld ${eur(CASH_EUR)}</div></div>
-    <div class="kpi"><div class="l">Gewinn/Verlust Krypto (unrealisiert)</div><div class="v ${cls(pl)}">${sgn(pl)}</div><div class="s ${cls(pl)}">${fmtP(pl/cost*100)} auf Einstand ${eur(cost)} (Ø-Preis laut Kraken)</div></div>
-    <div class="kpi"><div class="l">Gebühren seit 22.08.2026</div><div class="v">${eur(fees)}</div><div class="s">${fmt(fees/vol*100,2)} % auf ${eur(vol)} Handelsvolumen · ${TRADES.length} Trades</div></div>
-    <div class="kpi"><div class="l">Staking-Prämien (Wert heute)</div><div class="v">${eur(stNow,2)}</div><div class="s">${STAKE.length} Gutschriften seit 19.04.2026</div></div>
-    <div class="kpi"><div class="l">Flexline-Kredit</div><div class="v">${eur(LOAN.active)}</div><div class="s">offen am ${SNAP.split(',')[0]} · Sicherheitswert ${eur(LOAN.collateral)} · ${fmt(LOAN.feePct,1)} % Gebühr je Kreditaufnahme (beobachtet)</div></div>
-  </div>
-  <div class="kpis">
-    <div class="kpi"><div class="l">Euro eingezahlt</div><div class="v">${eur(DEP.reduce((s,d)=>s+d[1],0))}</div><div class="s">${DEP.length} Einzahlungen seit ${dt(DEP[0][0],false)} · ${eur(DEP.reduce((s,d)=>s+d[2],0))} Gebühren · keine Euro-Auszahlung</div></div>
-    <div class="kpi"><div class="l">Über Blockchain eingezahlt</div><div class="v">${XFER.filter(x=>x[2]>0).map(x=>x[1]).filter((v,i,a)=>a.indexOf(v)===i).map(k=>fmt(XFER.filter(x=>x[1]===k&&x[2]>0).reduce((s,x)=>s+x[2],0),4)+' '+k).join(' · ')}</div><div class="s">${XFER.filter(x=>x[2]>0).length} Eingänge von außerhalb Kraken</div></div>
-    <div class="kpi"><div class="l">Über Blockchain ausgezahlt</div><div class="v">${XFER.filter(x=>x[2]<0).map(x=>x[1]).filter((v,i,a)=>a.indexOf(v)===i).map(k=>fmt(-XFER.filter(x=>x[1]===k&&x[2]<0).reduce((s,x)=>s+x[2],0),4)+' '+k).join(' · ')}</div><div class="s">${XFER.filter(x=>x[2]<0).length} Ausgänge · Netzwerkgebühren ${XFER.filter(x=>x[2]<0).map(x=>fmt(x[3],4)+' '+x[1]).join(', ')}</div></div>
-    <div class="kpi"><div class="l">Kraken-Boni (Prämienbonus)</div><div class="v">${BONUS.length} Gutschriften</div><div class="s">DOGE, PEPE, SOL, BTC, ETH, USDG vom ${dt(BONUS[0][0],false)} bis ${dt(BONUS.at(-1)[0],false)} · Details im Reiter Staking</div></div>
-    <div class="kpi"><div class="l">Derivate (nur 24.08.2026)</div><div class="v dn">${fmt(DERIV.usd)} $</div><div class="s">Ergebnis inkl. ${fmt(DERIV.feeUsd)} $ Gebühren, ca. ${eur(DERIV.eur)} <span class="est">Umrechnung geschätzt</span></div></div>
-  </div>
+  ${heroHTML(rows,{val,crypto,xs,cost,pl,fees,vol,stNow})}
   <div class="row">
     <div class="panel" style="position:relative"><h2>Verteilung Krypto</h2><canvas id="donut" width="260" height="260"></canvas><div id="dtip" style="position:absolute;display:none;background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;pointer-events:none;white-space:nowrap;z-index:4"></div><div class="lg" id="lg"></div></div>
     <div class="panel"><h2>Positionen</h2><div style="overflow:auto"><table>
@@ -450,9 +604,7 @@ function drawPB(c){
 }
 function track(ch,el){const ro=new ResizeObserver(()=>{try{ch.applyOptions({width:el.clientWidth,height:el.clientHeight})}catch(e){}});ro.observe(el);const h={ch,remove(){ro.disconnect();try{ch.remove()}catch(e){}}};charts.push(h);return h}
 function baseOpts(el,intraday){return {width:el.clientWidth,height:el.clientHeight||290,layout:{background:{color:TH.card},textColor:TH.mut},grid:{vertLines:{color:TH.grid},horzLines:{color:TH.grid}},rightPriceScale:{borderColor:TH.line},timeScale:{borderColor:TH.line,timeVisible:!!intraday},crosshair:{mode:0}}}
-function drawCum(){
-  const el=$('#cum');if(!el)return;const ch=LightweightCharts.createChart(el,baseOpts(el,false));track(ch,el);
-  const s=ch.addAreaSeries({lineColor:'#5b8def',topColor:'rgba(91,141,239,.3)',bottomColor:'rgba(91,141,239,0)',lineWidth:2,priceFormat:{type:'price',precision:0,minMove:1}});
+function cumSeries(){
   const ev=[];  // {t, coin, dq, dep}
   DEP.forEach(d=>ev.push({t:d[0],dep:d[1]-d[2]}));
   XFER.forEach(x=>ev.push({t:x[0],coin:x[1],dq:x[2]-(x[2]<0?x[3]:0),flow:x[2]}));
@@ -467,6 +619,12 @@ function drawCum(){
     inv.push({time:d,value:+sum.toFixed(2)});
     if(ready){let v=0;for(const k in hold){if(Math.abs(hold[k])<1e-9)continue;const p=PX(k,d);if(p!=null)v+=hold[k]*p}valL.push({time:d,value:+v.toFixed(2)})}
   }
+  return {inv,valL};
+}
+function drawCum(){
+  const el=$('#cum');if(!el)return;const ch=LightweightCharts.createChart(el,baseOpts(el,false));track(ch,el);
+  const s=ch.addAreaSeries({lineColor:'#5b8def',topColor:'rgba(91,141,239,.3)',bottomColor:'rgba(91,141,239,0)',lineWidth:2,priceFormat:{type:'price',precision:0,minMove:1}});
+  const {inv,valL}=cumSeries();
   s.setData(inv);let vS=null;
   if(valL.length){vS=ch.addLineSeries({color:'#f5b942',lineWidth:2,priceFormat:{type:'price',precision:0,minMove:1}});vS.setData(valL)}
   const lg=$('#cumleg'),li=inv.at(-1).value,lv=valL.length?valL.at(-1).value:null;
