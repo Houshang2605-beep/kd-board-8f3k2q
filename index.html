@@ -229,17 +229,54 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-s
 }
 html[data-theme=tokio] .hv{text-shadow:0 0 34px rgba(255,138,61,.25)}
 html[data-theme=tokio] .hero{border-top:1px solid rgba(255,138,61,.45)}
+
+/* =====================================================================
+   VERSIONEN — Abzeichen im Kopf, Versions-Fenster, Band „Was ist neu“
+   Vorbild: Income Depot (v26.17). Die Nummer kommt aus CHANGELOG[0].
+   ===================================================================== */
+.ver{appearance:none;cursor:pointer;font:500 12px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:0;
+  color:var(--mut);-webkit-text-fill-color:var(--mut);background:transparent;border:1px solid var(--line);
+  border-radius:999px;padding:4px 9px;margin-left:8px;vertical-align:middle;transition:color .15s,border-color .15s,transform .15s}
+.ver:hover,.ver:focus-visible{color:var(--tx);-webkit-text-fill-color:var(--tx);border-color:var(--blue);transform:scale(1.04)}
+.ver.neu{border-color:var(--acc);color:var(--acc);-webkit-text-fill-color:var(--acc)}
+.vpop-bg{position:fixed;inset:0;z-index:80;background:rgba(3,6,12,.55);display:flex;justify-content:flex-end;align-items:flex-start;
+  padding:max(70px,calc(env(safe-area-inset-top) + 60px)) max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left))}
+.vpop{width:min(460px,100%);max-height:calc(100dvh - 100px);overflow:auto;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.55);padding:16px 18px;-webkit-overflow-scrolling:touch}
+html[data-theme=tokio] .vpop{background:#0b111e}
+.vpop .vh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.vpop .vh b{font-size:15px}
+.vpop .vh button{padding:5px 10px;font-size:12px}
+.vrow{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.vrow .vnum{display:block;font:600 13px "JetBrains Mono",ui-monospace,monospace}
+.vrow .vdat{display:block;color:var(--mut);font-size:11px;margin-top:2px}
+.vrow.jetzt .vnum{color:var(--acc)}
+.vrow .vt{font-weight:600;font-size:13px;line-height:1.4}
+.vrow .vt .sub{color:var(--mut);font-weight:400}
+.vgrp{margin-top:6px;font-size:12px;line-height:1.5}
+.vgrp ul{margin:3px 0 0;padding-left:16px}
+.vk{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;border-radius:4px;padding:1px 6px}
+.vk.neu{background:color-mix(in srgb,var(--up) 18%,transparent);color:var(--up)}
+.vk.be{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue)}
+.vk.rek{background:color-mix(in srgb,var(--mut) 18%,transparent);color:var(--mut);margin-left:6px}
+.vpop .vf{color:var(--mut);font-size:12px;margin-top:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.wasneu{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;
+  border-left:3px solid var(--acc)}
+.wasneu .wn-pin{font:600 11px "JetBrains Mono",ui-monospace,monospace;color:var(--acc);text-transform:uppercase;letter-spacing:.08em}
+.wasneu h3{margin:4px 0 6px;font-size:16px}
+.wasneu ul{margin:0;padding-left:18px;font-size:13px;line-height:1.55}
+.wasneu .wn-k{display:flex;gap:8px;align-self:center}
 </style>
 </head>
 <body>
 <header>
-  <h1>Kraken Depot <span id="stand"></span></h1>
+  <h1>Kraken Depot<button id="ver" class="ver" type="button" aria-label="Version und Änderungen anzeigen"></button> <span id="stand"></span></h1>
   <div class="ctl">
     <nav><button data-v="depot">Depot</button><button data-v="staking">Staking</button><button data-v="steuer">Steuer</button></nav>
     <button id="theme" title="Optik wechseln: Standard oder Tokio (Tokyo Night)">Optik: Standard</button><button id="reload" title="Alle Kurse neu von Kraken laden und alles neu berechnen">↻ Aktualisieren</button>
   </div>
 </header>
-<main><div id="v-depot" class="view"></div><div id="v-staking" class="view"></div><div id="v-steuer" class="view"></div></main>
+<main><div id="wasneu"></div><div id="v-depot" class="view"></div><div id="v-staking" class="view"></div><div id="v-steuer" class="view"></div></main>
 <script>/*!
  * @license
  * TradingView Lightweight Charts™ v4.2.3
@@ -803,6 +840,84 @@ $('#theme').onclick=()=>{setTheme(store.get('theme','tokio')==='tokio'?'std':'to
 setTheme(store.get('theme','tokio'));
 show((location.hash||'#depot').slice(1));
 loadAll();
+
+/* =====================================================================
+   VERSIONSHISTORIE
+   ---------------------------------------------------------------------
+   Nach „Keep a Changelog“ und semantischer Versionierung, neueste oben.
+   VERSION wird aus CHANGELOG[0] gelesen, nie von Hand gepflegt.
+   Pflege: Bei jeder Änderung am Dashboard kommt OBEN ein Eintrag dazu.
+   art: "minor" = neue Funktion, "patch" = Korrektur.
+   rek: true = aus der Commit-Historie rekonstruiert (vor v6.2 gab es
+   keinen Changelog); Datum und Titel stammen aus den Commits.
+   ===================================================================== */
+const CHANGELOG=[
+  {v:"6.2",d:"2026-11-21",t:"Versionsnummer im Kopf und „Was ist neu“",art:"minor",neu:[
+    "Neben dem Titel steht die Versionsnummer. Ein Klick zeigt die letzten fünf Änderungen mit „Neu“ und „Behoben“, auf Wunsch alle",
+    "Nach einem Update erscheint einmal ein Band „Was ist neu“, bis du auf „Gelesen“ tippst",
+    "Versionshistorie im Code nach „Keep a Changelog“, gleiche Struktur wie im Income Depot"]},
+  {v:"6.1",d:"2026-11-21",t:"Chart: schwarzer Keil und überlappende Preis-Etiketten",art:"patch",behoben:[
+    "Lagen deine Kauf-Punkte außerhalb des sichtbaren Bereichs, füllte die Chart-Bibliothek die EMA-Linie als schwarzen Keil. Fehler in der eingebauten Bibliothek behoben",
+    "Preis-Etiketten an der Achse verdeckten die Achsenbeschriftung. Kurs und Ø-Einstand stehen jetzt als gestrichelte Linien im Chart und mit Wert in der Legende"]},
+  {v:"6.0",d:"2026-11-21",t:"Professioneller Performance-Kopf",art:"minor",neu:[
+    "Kontowert groß mit Gesamtergebnis gegen netto eingezahltes Kapital (Euro und Coins)",
+    "Ergebnis-Brücke: Wasserfall von der Einzahlung über Gebühren und Kursentwicklung zum Kontowert",
+    "Verlaufslinie mit bestem und tiefstem Stand, Aufteilung Krypto, xStocks, Bargeld",
+    "Kennzahlenleiste: Kosten mit Gebührenquote in Basispunkten, Erträge, Bewegungen, Flexline mit Beleihungsquote"]},
+  {v:"5.4",d:"2026-11-13",t:"Maximieren-Liste ohne Minimieren-Knopf",art:"patch",rek:true,behoben:["Die maximierte Liste hatte in der Tokio-Optik keinen sichtbaren Minimieren-Knopf"]},
+  {v:"5.3",d:"2026-11-13",t:"Tokio-Optik: Regennacht mit Tower, Glas-Karten",art:"minor",rek:true,neu:["Tokio-Hintergrund mit Regen und Glas-Karten"]},
+  {v:"5.2",d:"2026-11-13",t:"Aktualisieren-Knopf mit Zeitstempel",art:"minor",rek:true,neu:["Knopf zum Neuladen aller Kurse, mit Uhrzeit des letzten Abrufs"]},
+  {v:"5.1",d:"2026-11-13",t:"iPhone-Layout und Tokio-Optik",art:"minor",rek:true,neu:["Ansicht passt sich dem iPhone an","Erste Tokio-Optik"]},
+  {v:"5.0",d:"2026-11-13",t:"Indikatoren, Zeitsprung, Ereignisse, Monats-Chart, Geldfluss",art:"minor",rek:true,neu:["EMA, SMA, RSI, MACD, Anchored VWAP","Zeitsprung und bekannte Markt-Ereignisse","Monats-Intervall","Geldfluss-Diagramm, Boni, komplettes Hauptbuch"]},
+  {v:"4.5",d:"2026-11-13",t:"Chart-Währung EUR/USDT",art:"minor",rek:true,neu:["Umschalten zwischen Euro und USDT"]},
+  {v:"4.4",d:"2026-11-13",t:"Dino-Marke am ersten Kurs",art:"minor",rek:true,neu:["Markierung am ersten verfügbaren Kurs"]},
+  {v:"4.3",d:"2026-11-13",t:"Linien-Chart mit Einstands-Färbung, Gesamt-Historie",art:"minor",rek:true,neu:["Linien-Chart grün über, rot unter Ø-Einstand","Knopf „Gesamt“ für die ganze Historie"]},
+  {v:"4.2",d:"2026-11-13",t:"Legende im Diagramm „Eingesetztes Geld“",art:"minor",rek:true,neu:["Legende im Geldfluss-Diagramm"]},
+  {v:"4.1",d:"2026-11-13",t:"Dashboard v4.1, erste veröffentlichte Fassung",art:"minor",rek:true,neu:["Depot, Staking und Steuer mit Charts je Coin"]}
+];
+const VERSION=CHANGELOG[0].v;
+
+/* ---- Abzeichen und Versions-Fenster -------------------------------- */
+function verRow(c,i){
+  return `<div class="vrow${i===0?' jetzt':''}"><div><span class="vnum">v${c.v}</span><span class="vdat">${c.d.split('-').reverse().join('.')}</span></div>
+  <div><div class="vt">${c.t}${i===0?' <span class="sub">· aktuell</span>':''}${c.rek?'<span class="vk rek" title="Aus der Commit-Historie rekonstruiert">rekonstruiert</span>':''}</div>
+  ${c.neu?`<div class="vgrp"><span class="vk neu">Neu</span><ul>${c.neu.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
+  ${c.behoben?`<div class="vgrp"><span class="vk be">Behoben</span><ul>${c.behoben.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}</div></div>`}
+function versionZeigen(alle){
+  closeVer();
+  const L=alle?CHANGELOG:CHANGELOG.slice(0,5);
+  const bg=document.createElement('div');bg.className='vpop-bg';bg.id='vpop';
+  bg.innerHTML=`<div class="vpop" role="dialog" aria-modal="true" aria-label="Versionen"><div class="vh"><b>Kraken Depot v${VERSION}</b><button type="button" data-vx>Schließen</button></div>
+  ${L.map(verRow).join('')}
+  <div class="vf"><span>${CHANGELOG.length} Versionen insgesamt</span>${alle?'':'<button type="button" data-valle>Alle anzeigen</button>'}</div></div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg||e.target.closest('[data-vx]'))closeVer();else if(e.target.closest('[data-valle]'))versionZeigen(true)});
+  document.body.appendChild(bg);document.body.classList.add('noscroll');
+  bg.querySelector('[data-vx]').focus();
+}
+function closeVer(){const b=$('#vpop');if(b){b.remove();if(!document.querySelector('details.max,.card.maxc'))document.body.classList.remove('noscroll')}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeVer()});
+
+/* ---- Band „Was ist neu“ ----------------------------------------------
+   Gespeichert wird die zuletzt gelesene Version (nur in diesem Browser).
+   Ohne gespeicherten Stand zeigt das Band die aktuelle Version. */
+const vNum=v=>v.split('.').map(Number),vNewer=(a,b)=>{const x=vNum(a),y=vNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)}return false};
+function renderWasNeu(){
+  const box=$('#wasneu'),badge=$('#ver');if(!box)return;
+  const seen=store.get('seenVer',null);
+  const neu=seen?CHANGELOG.filter(c=>vNewer(c.v,seen)):[CHANGELOG[0]];
+  if(badge){badge.textContent='v'+VERSION;badge.classList.toggle('neu',neu.length>0);badge.title=neu.length?'Neu seit deinem letzten Besuch':'Versionen ansehen'}
+  if(!neu.length){box.innerHTML='';return}
+  const pkt=[];neu.forEach(c=>[...(c.neu||[]),...(c.behoben||[])].forEach(x=>pkt.push(x)));
+  const zeig=pkt.slice(0,4);
+  box.innerHTML=`<div class="panel wasneu"><div style="min-width:0;flex:1 1 300px"><div class="wn-pin">Version ${VERSION}</div>
+  <h3>${neu.length===1?neu[0].t:neu.length+' neue Versionen seit deinem letzten Besuch'}</h3>
+  <ul>${zeig.map(x=>`<li>${x}</li>`).join('')}${pkt.length>zeig.length?`<li style="color:var(--mut)">und ${pkt.length-zeig.length} weitere</li>`:''}</ul></div>
+  <div class="wn-k"><button type="button" data-wnalle>Alles ansehen</button><button type="button" data-wnweg>Gelesen</button></div></div>`;
+  box.querySelector('[data-wnalle]').addEventListener('click',()=>versionZeigen(false));
+  box.querySelector('[data-wnweg]').addEventListener('click',()=>{store.set('seenVer',VERSION);renderWasNeu()});
+}
+$('#ver')?.addEventListener('click',()=>versionZeigen(false));
+renderWasNeu();
 </script>
 </body>
 </html>
