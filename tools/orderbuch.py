@@ -120,6 +120,20 @@ def zeige(nr, zeit, k, basis):
         print(f"    {zahl(s):>14}  {zahl(v, 4):>12} {basis}  ≈ {zahl(s * v, 0):>10}  (+{zahl((s / m - 1) * 100)} %)")
 
 
+def nachbar(s, bekannt, breite):
+    """Ordnet eine Stufe einem schon gesehenen Cluster zu, wenn sie direkt daneben liegt
+    (ein Cluster auf einer Stufengrenze springt sonst zwischen zwei Stufen hin und her)."""
+    for b in bekannt:
+        if abs(b - s) <= breite * 1.01:
+            return b
+    return s
+
+
+def menge_um(alle, s, breite):
+    """Größte Einzelstufe aus s und ihren beiden Nachbarn (vergleichbar mit der Spitze)."""
+    return max(alle.get(round(s + d * breite, 8), 0.0) for d in (-1, 0, 1))
+
+
 def stabilitaet(verlauf):
     """Vergleicht alle Schnappschüsse.
     stabil   = in mindestens 70 % der Schnappschüsse unter den Top 5
@@ -129,7 +143,12 @@ def stabilitaet(verlauf):
     zaehler, spitze = {}, {}
     for k in verlauf:
         for seite, top in (("Kauf", k["top_b"]), ("Verkauf", k["top_a"])):
+            gesehen = set()
             for s, v in top:
+                s = nachbar(s, [b for (sd, b) in zaehler if sd == seite], k["breite"])
+                if s in gesehen:
+                    continue
+                gesehen.add(s)
                 zaehler[(seite, s)] = zaehler.get((seite, s), 0) + 1
                 spitze[(seite, s)] = max(spitze.get((seite, s), 0.0), v)
     letzte = verlauf[-1]
@@ -140,7 +159,7 @@ def stabilitaet(verlauf):
         for (sd, s), c in zaehler.items():
             if sd != seite:
                 continue
-            jetzt, hoch = alle.get(s, 0.0), spitze[(sd, s)]
+            jetzt, hoch = menge_um(alle, s, letzte["breite"]), spitze[(sd, s)]
             if c >= 0.7 * n:
                 urteil = "stabil"
             elif c <= max(1, n // 3) and jetzt < 0.5 * hoch:
@@ -162,9 +181,14 @@ def json_speichern(ordner, paar, verlauf):
     zaehler = {}
     for k in verlauf:
         for seite, top in (("kauf", k["top_b"]), ("verkauf", k["top_a"])):
+            gesehen = set()
             for s, _ in top:
-                zaehler[(seite, s)] = zaehler.get((seite, s), 0) + 1
+                s = nachbar(s, [b for (sd, b) in zaehler if sd == seite], k["breite"])
+                if s not in gesehen:
+                    gesehen.add(s)
+                    zaehler[(seite, s)] = zaehler.get((seite, s), 0) + 1
     k = verlauf[-1]
+    bek = {sd: [b for (x, b) in zaehler if x == sd] for sd in ("kauf", "verkauf")}
     daten = {
         "paar": paar,
         "zeit": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -177,7 +201,7 @@ def json_speichern(ordner, paar, verlauf):
         "tiefe": {str(t): {"kauf": b, "verkauf": a} for t, (b, a) in k["tiefe"].items()},
         "cluster": {
             seite: [{"stufe": s, "menge": v, "wert": s * v, "abstand_pct": (s / k["mitte"] - 1) * 100,
-                     "in_top5": zaehler.get((seite, s), 0)} for s, v in top]
+                     "in_top5": zaehler.get((seite, nachbar(s, bek[seite], k["breite"])), 0)} for s, v in top]
             for seite, top in (("kauf", k["top_b"]), ("verkauf", k["top_a"]))
         },
     }
