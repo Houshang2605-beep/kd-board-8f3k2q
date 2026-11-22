@@ -1,0 +1,40 @@
+# Kraken-Orderbuch automatisch abfragen
+# Läuft stündlich und auf Knopfdruck (Actions -> Orderbuch -> Run workflow).
+# Je Paar 6 Schnappschüsse im Abstand von 30 Sekunden. Ergebnis in data/orderbuch/:
+#   <PAAR>_aktuell.json  letzter Stand (Cluster, Tiefe, Spread)
+#   <PAAR>_verlauf.csv   eine Zeile je Lauf
+# Nur öffentliche Kraken-Daten, kein API-Schlüssel.
+name: Orderbuch
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: orderbuch
+  cancel-in-progress: false
+jobs:
+  abfrage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests==2.32.3
+      - name: Orderbuch abfragen
+        run: |
+          for P in XBTEUR ETHEUR SOLEUR; do
+            python tools/orderbuch.py --paar $P --anzahl 6 --intervall 30 --ohne-csv --ordner data/orderbuch || echo "::warning::$P fehlgeschlagen"
+          done
+      - name: Ergebnis speichern
+        run: |
+          git config user.name "orderbuch-bot"
+          git config user.email "actions@github.com"
+          git add data/orderbuch
+          git diff --cached --quiet && exit 0
+          git commit -m "Orderbuch: Stand $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase -q origin main
+          git push
