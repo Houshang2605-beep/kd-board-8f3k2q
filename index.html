@@ -1458,6 +1458,97 @@ html[data-theme="tokio"] .vpop {
   gap: 8px;
   align-self: center;
 }
+
+/* =====================================================================
+   ORDERBUCH
+   ---------------------------------------------------------------------
+   Drei Karten (BTC, ETH, SOL) mit Verkaufs-Clustern oben, Kauf-Clustern
+   unten, wie in einem Orderbuch. Balkenlänge = Euro-Wert der Stufe.
+   ===================================================================== */
+.ob-g {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.ob-k {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+}
+.ob-h {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 15px;
+}
+.ob-q {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+  margin: 8px 0 4px;
+  color: var(--mut);
+}
+.ob-sl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--mut);
+  margin: 10px 0 4px;
+}
+.ob-z {
+  display: grid;
+  grid-template-columns: auto auto minmax(30px, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  padding: 3px 0;
+}
+.ob-ab {
+  min-width: 58px;
+  text-align: right;
+}
+.ob-tr {
+  height: 8px;
+  background: color-mix(in srgb, var(--line) 50%, transparent);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ob-tr i {
+  display: block;
+  height: 100%;
+}
+.ob-tr i.kauf {
+  background: var(--up);
+}
+.ob-tr i.verkauf {
+  background: var(--dn);
+}
+.ob-st {
+  font-size: 10px;
+  color: var(--mut);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+.ob-st.ok {
+  color: var(--up);
+  border-color: color-mix(in srgb, var(--up) 45%, transparent);
+}
+.ob-mid {
+  text-align: center;
+  color: var(--mut);
+  font-size: 12px;
+  margin: 6px 0;
+}
+@media (max-width: 1000px) {
+  .ob-g {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 <body>
@@ -3333,6 +3424,7 @@ function depotZeigen() {
     vol,
     stNow
   })}
+  <div id="orderbuch"></div>
   <div class="row">
     <div class="panel" style="position:relative"><h2>Verteilung Krypto</h2><canvas id="donut" width="260" height="260"></canvas><div id="dtip" style="position:absolute;display:none;background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;pointer-events:none;white-space:nowrap;z-index:4"></div><div class="lg" id="lg"></div></div>
     <div class="panel"><h2>Positionen</h2><div style="overflow:auto"><table>
@@ -3450,6 +3542,7 @@ function depotZeigen() {
           });
       })
   );
+  orderbuchZeigen();
 }
 /* Wechselt das Chart-Intervall eines Coins und lädt die Kerzen. */
 async function intervallSetzen(c, tf, card) {
@@ -4707,6 +4800,93 @@ function maximierenOeffnen(d) {
 }
 
 /* =====================================================================
+   ORDERBUCH — Liquiditäts-Cluster bei Kraken (BTC, ETH, SOL)
+   ---------------------------------------------------------------------
+   Die Daten holt nicht die Seite selbst, sondern ein GitHub-Lauf jede
+   Stunde (.github/workflows/orderbuch.yml mit tools/orderbuch.py): je Paar
+   6 Schnappschüsse im Abstand von 30 Sekunden. Ergebnis liegt im Repo unter
+   data/orderbuch/<PAAR>_aktuell.json und wird hier nur gelesen.
+   „x/6“ = in wie vielen Schnappschüssen der Cluster unter den Top 5 war.
+   Grenzen: nur Kraken, nur sichtbare Orders (kein Iceberg), Momentaufnahme
+   über rund 3 Minuten. Ein Cluster ist ein Hinweis, kein Signal.
+   ===================================================================== */
+const ORDERBUCH_PAARE = [
+  ['XBTEUR', 'BTC'],
+  ['ETHEUR', 'ETH'],
+  ['SOLEUR', 'SOL']
+];
+let ORDERBUCH = null;
+
+/* Lädt die zuletzt vom GitHub-Lauf gespeicherten Orderbuch-Daten. */
+async function orderbuchLaden() {
+  const daten = {};
+  await Promise.all(
+    ORDERBUCH_PAARE.map(async ([paar]) => {
+      try {
+        const r = await fetch('data/orderbuch/' + paar + '_aktuell.json', { cache: 'no-store' });
+        if (r.ok) daten[paar] = await r.json();
+      } catch (e) {}
+    })
+  );
+  ORDERBUCH = daten;
+  orderbuchZeigen();
+}
+
+/* Eine Seite (Kauf oder Verkauf) als Liste: Preis, Abstand, Wert als Balken, Stabilität. */
+function orderbuchSeite(d, seite) {
+  const L = d.cluster[seite] || [];
+  const mx = Math.max(1, ...L.map(c => c.wert));
+  const sortiert = [...L].sort((a, b) =>
+    seite === 'kauf' ? b.stufe - a.stufe : a.stufe - b.stufe
+  );
+  return sortiert
+    .map(c => {
+      const st =
+        c.in_top5 >= Math.ceil(0.7 * d.schnappschuesse)
+          ? '<span class="ob-st ok">stabil</span>'
+          : '<span class="ob-st">' + c.in_top5 + '/' + d.schnappschuesse + '</span>';
+      return `<div class="ob-z"><span class="num">${zahl(c.stufe, kursStellen(c.stufe))}</span><span class="num ob-ab ${seite === 'kauf' ? 'up' : 'dn'}">${prozent(c.abstand_pct)}</span><span class="ob-tr"><i class="${seite}" style="width:${(c.wert / mx) * 100}%"></i></span><span class="num">${eur(c.wert, 0)}</span>${st}</div>`;
+    })
+    .join('');
+}
+
+/* Zeigt das Feld „Orderbuch“ in der Depot-Ansicht. */
+function orderbuchZeigen() {
+  const box = $('#orderbuch');
+  if (!box) return;
+  if (!ORDERBUCH) {
+    box.innerHTML =
+      '<div class="panel"><h2>Orderbuch Kraken</h2><div class="small">lädt …</div></div>';
+    return;
+  }
+  const da = ORDERBUCH_PAARE.filter(([p]) => ORDERBUCH[p]);
+  if (!da.length) {
+    box.innerHTML =
+      '<div class="panel"><h2>Orderbuch Kraken</h2><div class="small">Noch keine Daten. Der GitHub-Lauf „Orderbuch“ legt sie stündlich unter data/orderbuch/ ab.</div></div>';
+    return;
+  }
+  const karten = da
+    .map(([p, coin]) => {
+      const d = ORDERBUCH[p];
+      const t1 = d.tiefe['1.0'],
+        q = t1.verkauf ? t1.kauf / t1.verkauf : 0;
+      const alter = (Date.now() - new Date(d.zeit).getTime()) / 60000;
+      return `<section class="ob-k">
+        <div class="ob-h"><b>${coin}/EUR</b><span class="num">Mitte ${zahl(d.mitte, kursStellen(d.mitte))}</span></div>
+        <div class="small">Stand ${datum(new Date(d.zeit).getTime() / 1000)}${alter > 90 ? ' <span class="est">älter als 90 Min.</span>' : ''} · Spread ${zahl(d.spread_pct, 4)} % · Buch reicht ${zahl(d.reichweite_pct[0], 1)} % / +${zahl(d.reichweite_pct[1], 1)} %</div>
+        <div class="ob-q"><span>Tiefe ±1 %</span><span class="num up">Kauf ${eur(t1.kauf, 0)}</span><span class="num dn">Verkauf ${eur(t1.verkauf, 0)}</span><span class="num">Verhältnis ${zahl(q)}</span></div>
+        <div class="ob-sl">Verkaufs-Cluster</div>${orderbuchSeite(d, 'verkauf')}
+        <div class="ob-mid num">— ${zahl(d.mitte, kursStellen(d.mitte))} —</div>
+        <div class="ob-sl">Kauf-Cluster</div>${orderbuchSeite(d, 'kauf')}
+      </section>`;
+    })
+    .join('');
+  box.innerHTML = `<div class="panel"><h2>Orderbuch Kraken: größte Liquiditäts-Cluster</h2>
+    <div class="ob-g">${karten}</div>
+    <div class="small" style="margin-top:10px">Stufenbreite rund 0,1 % vom Kurs. „stabil“ = in mindestens 70 % der 6 Schnappschüsse unter den Top 5. Nur Kraken und nur sichtbare Orders; Iceberg-Orders und andere Börsen fehlen. Ein Cluster ist ein Hinweis, kein Signal.</div></div>`;
+}
+
+/* =====================================================================
    VERSIONSHISTORIE
    ---------------------------------------------------------------------
    Nach „Keep a Changelog“ und semantischer Versionierung, neueste oben.
@@ -4718,6 +4898,17 @@ function maximierenOeffnen(d) {
    ===================================================================== */
 
 const CHANGELOG = [
+  {
+    v: '6.4',
+    d: '2026-11-22',
+    t: 'Orderbuch: Liquiditäts-Cluster von Kraken',
+    art: 'minor',
+    neu: [
+      'Neues Feld „Orderbuch Kraken“ im Depot: größte Kauf- und Verkaufs-Cluster für BTC, ETH und SOL mit Abstand zum Kurs, Euro-Wert, Spread und Tiefe bis ±1 %',
+      'Ein GitHub-Lauf fragt das Orderbuch jede Stunde ab (6 Schnappschüsse je Paar) und markiert Cluster, die stehen bleiben, als „stabil“',
+      'Verlauf je Paar in data/orderbuch/<PAAR>_verlauf.csv, Skript tools/orderbuch.py läuft auch auf dem Mac'
+    ]
+  },
   {
     v: '6.3',
     d: '2026-11-21',
@@ -4968,6 +5159,7 @@ $('#theme').onclick = () => {
 optikSetzen(speicher.get('theme', 'tokio'));
 ansichtZeigen((location.hash || '#depot').slice(1));
 allesLaden();
+orderbuchLaden();
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') versionSchliessen();
 });
