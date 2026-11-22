@@ -64,11 +64,18 @@ def cluster(orders, breite):
     return out
 
 
-def auswerten(bids, asks, stufe_prozent):
-    """Alle Kennzahlen eines Schnappschusses."""
+def runde_stufe(x):
+    """Rundet eine Stufenbreite auf einen glatten Wert: 1, 2, 2,5 oder 5 mal Zehnerpotenz."""
+    import math
+    e = 10 ** math.floor(math.log10(x))
+    return min((m * e for m in (1, 2, 2.5, 5, 10)), key=lambda v: abs(v - x))
+
+
+def auswerten(bids, asks, breite):
+    """Alle Kennzahlen eines Schnappschusses. breite = feste Stufenbreite für den ganzen Lauf,
+    damit dieselbe Preisstufe in jedem Schnappschuss gleich heißt."""
     bester_bid, bester_ask = bids[0][0], asks[0][0]
     mitte = (bester_bid + bester_ask) / 2
-    breite = mitte * stufe_prozent / 100
     tiefe = {}
     for t in TIEFEN:
         unten, oben = mitte * (1 - t / 100), mitte * (1 + t / 100)
@@ -218,7 +225,9 @@ def main():
             except Exception as e:
                 print(f"\nSchnappschuss {nr} fehlgeschlagen: {e}")
             else:
-                k = auswerten(bids, asks, args.stufe)
+                if not verlauf:
+                    breite = runde_stufe((bids[0][0] + asks[0][0]) / 2 * args.stufe / 100)
+                k = auswerten(bids, asks, breite)
                 verlauf.append(k)
                 zeige(nr, zeit, k, basis)
                 for seite, alle in (("kauf", k["alle_b"]), ("verkauf", k["alle_a"])):
