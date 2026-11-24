@@ -1794,6 +1794,121 @@ html[data-theme="tokio"] .vpop {
 .btc-tw {
   overflow-x: auto;
 }
+
+/* =====================================================================
+   BTC-VOLLBILD UND JAHRESVERGLEICH
+   ---------------------------------------------------------------------
+   Vollbild: Der Chart-Kasten liegt fest über der ganzen Seite, achtet auf
+   Kerbe und Home-Leiste (Safe-Area) und funktioniert hoch und quer.
+   Oben eine schmale Leiste, Ebenen klappen als Feld auf, die Legende
+   liegt halbtransparent im Chart. Kurs-Chart und Z-Score teilen sich die
+   Höhe (etwa 78 zu 22).
+   ===================================================================== */
+.btc-nurmax {
+  display: none;
+}
+.btc-vollbild {
+  border-color: #f7a440;
+  color: #f7a440;
+}
+.btc-chartbox.max {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  margin: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+}
+html[data-theme="tokio"] .btc-chartbox.max {
+  background: #070b14;
+}
+.btc-chartbox.max .btc-nurmax {
+  display: inline-flex;
+}
+.btc-chartbox.max .btc-leiste {
+  flex: 0 0 auto;
+  gap: 6px;
+}
+.btc-chartbox.max .btc-gruppe button {
+  padding: 5px 9px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.btc-chartbox.max .btc-chips {
+  display: none;
+  margin: 6px 0 2px;
+}
+.btc-chartbox.max.ebenen-offen .btc-chips {
+  display: flex;
+}
+.btc-chartbox.max .btc-haupt {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.btc-chartbox.max #btc-haupt {
+  height: 100%;
+}
+.btc-chartbox.max .btc-legende {
+  flex: 0 0 auto;
+  margin: 4px 0 2px;
+  font-size: 11px;
+}
+.btc-chartbox.max .btc-tags {
+  top: 0;
+}
+.btc-chartbox.max .btc-zkopf {
+  flex: 0 0 auto;
+  margin-top: 4px;
+}
+.btc-chartbox.max .btc-zkopf .small {
+  display: none;
+}
+.btc-chartbox.max .btc-z {
+  flex: 0 0 22%;
+  height: auto;
+  min-height: 70px;
+}
+.btc-chartbox.max .btc-hinweis {
+  display: none;
+}
+.btc-chartbox.ohne-z .btc-z,
+.btc-chartbox.ohne-z .btc-zkopf {
+  display: none;
+}
+.btc-chartbox:not(.max).ohne-z .btc-z,
+.btc-chartbox:not(.max).ohne-z .btc-zkopf {
+  display: block;
+}
+.btc-chartbox:not(.max).ohne-z .btc-zkopf {
+  display: flex;
+}
+.btc-analog {
+  margin-bottom: 14px;
+}
+.btc-analog-chart {
+  height: 340px;
+  margin-top: 6px;
+}
+.btc-analog-tab {
+  margin-top: 12px;
+}
+.btc-analog-tab table {
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .btc-analog-chart {
+    height: 280px;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .btc-chartbox.max .btc-z {
+    flex-basis: 26%;
+  }
+}
 </style>
 </head>
 <body>
@@ -5499,6 +5614,9 @@ function btcZeigen() {
       </div>
       <div class="btc-gruppe" role="group" aria-label="Skala">
         <button type="button" data-skala="log">Log</button><button type="button" data-skala="lin">Linear</button>
+        <button type="button" class="btc-nurmax" data-btc-ebenen aria-expanded="false">Ebenen</button>
+        <button type="button" class="btc-nurmax" data-btc-zan>Z-Score</button>
+        <button type="button" class="btc-vollbild" data-btc-max aria-label="Chart im Vollbild öffnen">⤢ Vollbild</button>
       </div>
     </div>
     <div class="btc-chips">
@@ -5510,6 +5628,8 @@ function btcZeigen() {
     <div id="btc-z" class="btc-z"></div>
     <div class="small btc-hinweis">Daten: ${BTC_DATEN.quelle}; Kurs heute: Binance BTC/USDT. Z-Score nach der Formel (Marktkap. − realisierte Kap.) / Standardabweichung der Marktkap.; andere Anbieter weichen leicht ab. Elliott-Marken aus der Analyse deines YouTube-Analysten, als langfristiger Rahmen, kein Signal. Deine Käufe sind in Euro und mit dem Tagesverhältnis BTC/USD zu BTC/EUR umgerechnet (Näherung).</div>
   </div>
+
+  ${btcAnalogHTML()}
 
   <div class="row">
     <div class="panel">
@@ -5551,6 +5671,7 @@ function btcZeigen() {
     <div class="small" style="margin-top:8px">Monatsschluss gegen Vormonatsschluss in US-Dollar, ab 2011. Der laufende Monat zählt bis heute.</div>
   </div>`;
   btcChartsZeichnen(K);
+  btcAnalogZeichnen();
 }
 
 /* Zeichnet Kurs-Chart und Z-Score-Chart, verbindet Zeitachsen, Fadenkreuz und Werkzeugleiste. */
@@ -5567,16 +5688,31 @@ function btcChartsZeichnen(K) {
     rightPriceScale: {
       borderColor: FARBEN.line,
       mode: log ? 1 : 0,
-      scaleMargins: { top: 0.06, bottom: 0.04 }
+      scaleMargins: { top: 0.03, bottom: 0.03 }
     },
-    timeScale: { borderColor: FARBEN.line, rightOffset: 6 },
-    crosshair: { mode: 0 }
+    timeScale: { borderColor: FARBEN.line, rightOffset: 6, minBarSpacing: 0.01 },
+    crosshair: { mode: 0 },
+    kineticScroll: { touch: true, mouse: false },
+    handleScroll: {
+      mouseWheel: true,
+      pressedMouseMove: true,
+      horzTouchDrag: true,
+      vertTouchDrag: false
+    },
+    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
   });
   const chz = LightweightCharts.createChart(elz, {
     ...chartGrundoptionen(elz),
     rightPriceScale: { borderColor: FARBEN.line, scaleMargins: { top: 0.08, bottom: 0.08 } },
-    timeScale: { borderColor: FARBEN.line, rightOffset: 6, visible: true },
-    crosshair: { mode: 0 }
+    timeScale: { borderColor: FARBEN.line, rightOffset: 6, visible: true, minBarSpacing: 0.01 },
+    crosshair: { mode: 0 },
+    kineticScroll: { touch: true, mouse: false },
+    handleScroll: {
+      mouseWheel: true,
+      pressedMouseMove: true,
+      horzTouchDrag: true,
+      vertTouchDrag: false
+    }
   });
   const ohne = { lastValueVisible: false, priceLineVisible: false };
   const nichtSkalieren = { autoscaleInfoProvider: () => null };
@@ -5704,13 +5840,17 @@ function btcChartsZeichnen(K) {
   }
   const etiketten = () => {
     const h = el.clientHeight;
+    // Beschriftungen von oben nach unten setzen; was zu dicht an der vorigen liegt, entfällt
+    let zuletzt = -99;
     tags.innerHTML = marken
       .filter(m => E[m.gruppe])
-      .map(m => {
-        const y = kurs.priceToCoordinate(m.preis);
-        return y === null || y < 6 || y > h - 6
-          ? ''
-          : `<span style="top:${y}px;color:${m.farbe}">${m.text}</span>`;
+      .map(m => ({ m, y: kurs.priceToCoordinate(m.preis) }))
+      .filter(x => x.y !== null && x.y >= 6 && x.y <= h - 6)
+      .sort((a, b) => a.y - b.y)
+      .map(({ m, y }) => {
+        if (y - zuletzt < 13) return '';
+        zuletzt = y;
+        return `<span style="top:${y}px;color:${m.farbe}">${m.text}</span>`;
       })
       .join('');
   };
@@ -5828,6 +5968,44 @@ function btcChartsZeichnen(K) {
   });
   zeitraum(speicher.get('btcZeit', '1460'));
 
+  // Vollbild: Chart füllt den Bildschirm (auch quer), Bedienung kompakt oben,
+  // Ebenen als ausklappbares Feld, Z-Score ein- und ausblendbar.
+  const rahmen = box.querySelector('.btc-chartbox');
+  const vollbild = an => {
+    rahmen.classList.toggle('max', an);
+    document.body.classList.toggle('noscroll', an);
+    box.querySelector('[data-btc-max]').textContent = an ? '✕ Schließen' : '⤢ Vollbild';
+    rahmen.classList.remove('ebenen-offen');
+    // im Vollbild zieht der Finger auch senkrecht den Chart, sonst scrollt die Seite
+    ch.applyOptions({ handleScroll: { vertTouchDrag: an } });
+    setTimeout(() => {
+      ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+      chz.applyOptions({ width: elz.clientWidth, height: elz.clientHeight });
+      zeitraum(speicher.get('btcZeit', '1460'));
+    }, 60);
+  };
+  box.querySelector('[data-btc-max]').onclick = () => vollbild(!rahmen.classList.contains('max'));
+  box.querySelector('[data-btc-ebenen]').onclick = e => {
+    const offen = rahmen.classList.toggle('ebenen-offen');
+    e.currentTarget.setAttribute('aria-expanded', offen);
+  };
+  const zKnopf = box.querySelector('[data-btc-zan]');
+  const zSetzen = an => {
+    rahmen.classList.toggle('ohne-z', !an);
+    zKnopf.classList.toggle('on', an);
+    speicher.set('btcZmax', an ? '1' : '0');
+    setTimeout(() => {
+      ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+      chz.applyOptions({ width: elz.clientWidth, height: elz.clientHeight });
+    }, 30);
+  };
+  zKnopf.onclick = () => zSetzen(rahmen.classList.contains('ohne-z'));
+  zSetzen(speicher.get('btcZmax', '1') === '1');
+  const esc = e => {
+    if (e.key === 'Escape' && rahmen.classList.contains('max')) vollbild(false);
+  };
+  document.addEventListener('keydown', esc);
+
   const ro = new ResizeObserver(() => {
     try {
       ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
@@ -5842,6 +6020,8 @@ function btcChartsZeichnen(K) {
   BTC_ANSICHT = {
     entfernen() {
       ro.disconnect();
+      document.removeEventListener('keydown', esc);
+      document.body.classList.remove('noscroll');
       try {
         ch.remove();
         chz.remove();
@@ -5849,6 +6029,253 @@ function btcChartsZeichnen(K) {
       BTC_ANSICHT = null;
     }
   };
+}
+
+/* =====================================================================
+   BTC-JAHRESVERGLEICH — welche Jahre ähneln dem laufenden Jahr?
+   ---------------------------------------------------------------------
+   Vergleichsjahre nach Zyklus-Position: gleich viele Jahre nach dem
+   Halving wie das laufende Jahr (2026 = 2 Jahre nach 2024 → 2014, 2018,
+   2022). Für jedes Vergleichsjahr wird sein Verlauf und der des Folgejahres
+   auf den Kurs vom 1. Januar des laufenden Jahres umgerechnet.
+   Ähnlichkeit = Korrelation der Tagesverläufe (log) vom 1. Januar bis heute.
+   Zusätzlich die Zyklus-Tiefs: Hoch innerhalb von 2 Jahren nach jedem
+   Halving, Tief danach bis zum nächsten Halving.
+   Nur 3 frühere Zyklen: ein Muster, keine Vorhersage.
+   ===================================================================== */
+let BTC_ANALOG_CHART = null;
+const BTC_ANALOG_FARBEN = ['#4ea1ff', '#a78bfa', '#9aa3b5', '#7df0b8'];
+
+/* Kurse eines Kalenderjahres als [{tag (0 = 1. Jan), t, p}]. */
+function btcJahr(j) {
+  const a = Date.UTC(j, 0, 1) / 1000,
+    e = Date.UTC(j + 1, 0, 1) / 1000;
+  const out = [];
+  BTC_DATEN.t.forEach((t, i) => {
+    if (t >= a && t < e) out.push({ tag: Math.round((t - a) / TAG), t, p: BTC_DATEN.p[i] });
+  });
+  return out;
+}
+
+/* Vergleichsjahre, Ähnlichkeit, Renditen und Pfade für den Chart. */
+function btcAnalogKennzahlen() {
+  const jetzt = new Date(BTC_DATEN.t[BTC_DATEN.t.length - 1] * 1000).getUTCFullYear();
+  const halvJahre = BTC_HALVINGS.map(([d]) => +d.slice(0, 4));
+  const letzte = halvJahre.filter(h => h <= jetzt).pop();
+  const abstand = jetzt - letzte;
+  const aktuell = btcJahr(jetzt);
+  const heuteTag = aktuell[aktuell.length - 1].tag;
+  const startKurs = aktuell[0].p;
+  const vergleich = halvJahre
+    .filter(h => h < letzte)
+    .map(h => h + abstand)
+    .map(j => {
+      const y = btcJahr(j),
+        f = btcJahr(j + 1);
+      if (!y.length) return null;
+      const m = new Map(y.map(x => [x.tag, x.p]));
+      const a = [],
+        b = [];
+      aktuell.forEach(x => {
+        if (m.has(x.tag)) {
+          a.push(Math.log(x.p / startKurs));
+          b.push(Math.log(m.get(x.tag) / y[0].p));
+        }
+      });
+      const mw = v => v.reduce((s, x) => s + x, 0) / v.length;
+      const ma = mw(a),
+        mb = mw(b);
+      let cov = 0,
+        va = 0,
+        vb = 0;
+      a.forEach((x, i) => {
+        cov += (x - ma) * (b[i] - mb);
+        va += (x - ma) ** 2;
+        vb += (b[i] - mb) ** 2;
+      });
+      const bisHeute = y.filter(x => x.tag <= heuteTag).pop();
+      return {
+        jahr: j,
+        korr: va && vb ? cov / Math.sqrt(va * vb) : null,
+        bisHeute: (bisHeute.p / y[0].p - 1) * 100,
+        rest: (y[y.length - 1].p / bisHeute.p - 1) * 100,
+        folge: f.length > 300 ? (f[f.length - 1].p / f[0].p - 1) * 100 : null,
+        pfad: [
+          ...y.map(x => ({ tag: x.tag, v: (x.p / y[0].p) * startKurs })),
+          ...f.map(x => ({ tag: 365 + x.tag, v: (x.p / y[0].p) * startKurs }))
+        ]
+      };
+    })
+    .filter(Boolean);
+  return {
+    jetzt,
+    abstand,
+    heuteTag,
+    bisHeute: (aktuell[aktuell.length - 1].p / startKurs - 1) * 100,
+    aktuell: aktuell.map(x => ({ tag: x.tag, v: x.p })),
+    vergleich,
+    tiefs: btcZyklusTiefs()
+  };
+}
+
+/* Je Zyklus: Hoch (bis 2 Jahre nach dem Halving), Tief danach, Rückgang, Tage, Rendite 1 Jahr nach dem Tief. */
+function btcZyklusTiefs() {
+  const { t, p } = BTC_DATEN;
+  return BTC_HALVINGS.map(([d, name], i) => {
+    const a = Date.parse(d) / 1000;
+    const e = i + 1 < BTC_HALVINGS.length ? Date.parse(BTC_HALVINGS[i + 1][0]) / 1000 : Infinity;
+    let hoch = -1,
+      tief = -1;
+    t.forEach((x, k) => {
+      if (x >= a && x < a + 730 * TAG && (hoch < 0 || p[k] > p[hoch])) hoch = k;
+    });
+    if (hoch < 0) return null;
+    t.forEach((x, k) => {
+      if (x >= t[hoch] && x < e && (tief < 0 || p[k] < p[tief])) tief = k;
+    });
+    const spaeter = btcTagIndex(t[tief] + 365 * TAG);
+    const laufend = e === Infinity;
+    return {
+      name,
+      hoch: p[hoch],
+      hochZeit: t[hoch],
+      tief: p[tief],
+      tiefZeit: t[tief],
+      rueckgang: (p[tief] / p[hoch] - 1) * 100,
+      tage: Math.round((t[tief] - t[hoch]) / TAG),
+      nachJahr:
+        !laufend && t[tief] + 365 * TAG <= t[t.length - 1]
+          ? (p[spaeter] / p[tief] - 1) * 100
+          : null,
+      laufend,
+      heute: laufend
+        ? {
+            rueckgang: (p[p.length - 1] / p[hoch] - 1) * 100,
+            tage: Math.round((t[t.length - 1] - t[hoch]) / TAG)
+          }
+        : null
+    };
+  }).filter(Boolean);
+}
+
+/* Feld „Jahresvergleich“: Chart-Platz, Tabelle der Vergleichsjahre, Tabelle der Zyklus-Tiefs. */
+function btcAnalogHTML() {
+  const A = btcAnalogKennzahlen();
+  const beste = [...A.vergleich].sort((a, b) => b.korr - a.korr)[0];
+  const lauf = A.tiefs.find(x => x.laufend);
+  const fertig = A.tiefs.filter(x => !x.laufend);
+  return `<div class="panel btc-analog">
+    <h2>Jahresvergleich: welche Jahre ähneln ${A.jetzt}?</h2>
+    <div class="small">Vergleichsjahre mit derselben Zyklus-Position (${A.abstand} Jahre nach dem Halving), umgerechnet auf den Kurs vom 1. Januar ${A.jetzt}. Die gestrichelten Linien zeigen, wie es im jeweiligen Folgejahr weiterging.</div>
+    <div class="btc-legende num" id="btc-analog-legende"></div>
+    <div id="btc-analog" class="btc-analog-chart"></div>
+    <div class="row btc-analog-tab">
+      <div class="btc-tw"><table>
+        <thead><tr><th>Jahr</th><th>Ähnlichkeit zu ${A.jetzt} (1 = gleich)</th><th>1. Jan bis heute</th><th>Rest des Jahres</th><th>ganzes Folgejahr</th></tr></thead>
+        <tbody>
+          <tr><td><b style="color:#f7a440">${A.jetzt}</b></td><td>–</td><td class="num ${farbKlasse(A.bisHeute)}">${prozent(A.bisHeute)}</td><td>?</td><td>?</td></tr>
+          ${A.vergleich
+            .map(
+              (v, i) =>
+                `<tr><td><b style="color:${BTC_ANALOG_FARBEN[i]}">${v.jahr}</b>${v === beste ? ' <span class="ob-st ok">am ähnlichsten</span>' : ''}</td><td class="num">${zahl(v.korr, 2)}</td><td class="num ${farbKlasse(v.bisHeute)}">${prozent(v.bisHeute)}</td><td class="num ${farbKlasse(v.rest)}">${prozent(v.rest)}</td><td class="num ${farbKlasse(v.folge || 0)}">${v.folge === null ? '–' : prozent(v.folge)}</td></tr>`
+            )
+            .join('')}
+        </tbody></table></div>
+      <div class="btc-tw"><table>
+        <thead><tr><th>Zyklus</th><th>Hoch</th><th>Tief</th><th>Rückgang</th><th>Tage Hoch → Tief</th><th>1 Jahr nach Tief</th></tr></thead>
+        <tbody>
+          ${A.tiefs
+            .map(
+              x =>
+                `<tr><td>${x.name}</td><td class="num">${zahl(x.hoch, 0)} $<br><span class="small">${datum(x.hochZeit, false)}</span></td><td class="num">${x.laufend ? 'bisher ' : ''}${zahl(x.tief, 0)} $<br><span class="small">${datum(x.tiefZeit, false)}</span></td><td class="num dn">${prozent(x.rueckgang)}${x.laufend ? '<br><span class="small">heute ' + prozent(x.heute.rueckgang) + '</span>' : ''}</td><td class="num">${x.laufend ? 'heute Tag ' + x.heute.tage : x.tage}</td><td class="num up">${x.nachJahr === null ? '–' : prozent(x.nachJahr)}</td></tr>`
+            )
+            .join('')}
+        </tbody></table></div>
+    </div>
+    <div class="small" style="margin-top:8px">${
+      lauf && fertig.length
+        ? `Bisherige Tiefs kamen ${fertig.map(x => x.tage).join(', ')} Tage nach dem Zyklus-Hoch, mit ${fertig.map(x => prozent(x.rueckgang)).join(', ')}. Heute ist Tag ${lauf.heute.tage}, der Rückgang liegt bei ${prozent(lauf.heute.rueckgang)}. `
+        : ''
+    }Drei frühere Zyklen sind eine kleine Stichprobe. Das zeigt Muster, keine Vorhersage.</div>
+  </div>`;
+}
+
+/* Zeichnet den Jahresvergleich: laufendes Jahr und Vergleichsjahre samt Folgejahr. */
+function btcAnalogZeichnen() {
+  if (BTC_ANALOG_CHART) {
+    try {
+      BTC_ANALOG_CHART.ch.remove();
+      BTC_ANALOG_CHART.ro.disconnect();
+    } catch (e) {}
+    BTC_ANALOG_CHART = null;
+  }
+  const el = $('#btc-analog');
+  if (!el) return;
+  const A = btcAnalogKennzahlen();
+  const start = Date.UTC(A.jetzt, 0, 1) / 1000;
+  const zeit = tag => start + tag * TAG;
+  const ch = LightweightCharts.createChart(el, {
+    ...chartGrundoptionen(el),
+    rightPriceScale: { borderColor: FARBEN.line, mode: 1 },
+    timeScale: { borderColor: FARBEN.line, rightOffset: 4, minBarSpacing: 0.01 },
+    crosshair: { mode: 0 },
+    handleScroll: { vertTouchDrag: false }
+  });
+  const fmt = {
+    priceFormat: { type: 'price', precision: 0, minMove: 1 },
+    lastValueVisible: false,
+    priceLineVisible: false
+  };
+  const reihen = A.vergleich.map((v, i) => {
+    const vor = ch.addLineSeries({ ...fmt, color: BTC_ANALOG_FARBEN[i], lineWidth: 2 });
+    vor.setData(v.pfad.filter(x => x.tag < 365).map(x => ({ time: zeit(x.tag), value: x.v })));
+    const nach = ch.addLineSeries({
+      ...fmt,
+      color: BTC_ANALOG_FARBEN[i],
+      lineWidth: 2,
+      lineStyle: 2
+    });
+    nach.setData(v.pfad.filter(x => x.tag >= 364).map(x => ({ time: zeit(x.tag), value: x.v })));
+    return { v, vor, nach };
+  });
+  const akt = ch.addLineSeries({ ...fmt, color: '#f7a440', lineWidth: 3 });
+  akt.setData(A.aktuell.map(x => ({ time: zeit(x.tag), value: x.v })));
+  akt.setMarkers([
+    {
+      time: zeit(A.aktuell[A.aktuell.length - 1].tag),
+      position: 'aboveBar',
+      color: '#f7a440',
+      shape: 'arrowDown',
+      text: 'heute'
+    }
+  ]);
+  ch.timeScale().fitContent();
+  const leg = $('#btc-analog-legende');
+  const zeig = t => {
+    const tag = t ? Math.round((t - start) / TAG) : A.heuteTag;
+    const d = new Date(zeit(tag) * 1000);
+    const wert = (pf, g) => {
+      const x = pf.filter(q => q.tag <= g).pop();
+      return x ? zahl(x.v, 0) + ' $' : '–';
+    };
+    leg.innerHTML =
+      `<span>${tag < 365 ? '' : 'Folgejahr, '}${d.getUTCDate()}.${d.getUTCMonth() + 1}.</span><span style="color:#f7a440">${A.jetzt} ${wert(A.aktuell, tag)}</span>` +
+      A.vergleich
+        .map(
+          (v, i) =>
+            `<span style="color:${BTC_ANALOG_FARBEN[i]}">wie ${v.jahr}/${v.jahr + 1}: ${wert(v.pfad, tag)}</span>`
+        )
+        .join('');
+  };
+  ch.subscribeCrosshairMove(p => zeig(p && p.time));
+  zeig(null);
+  const ro = new ResizeObserver(() => {
+    try {
+      ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+    } catch (e) {}
+  });
+  ro.observe(el);
+  BTC_ANALOG_CHART = { ch, ro, reihen };
 }
 
 /* =====================================================================
@@ -5863,6 +6290,20 @@ function btcChartsZeichnen(K) {
    ===================================================================== */
 
 const CHANGELOG = [
+  {
+    v: '6.6',
+    d: '2026-11-24',
+    t: 'BTC-Chart im Vollbild, „Alles“ repariert, Jahresvergleich',
+    art: 'minor',
+    neu: [
+      'Knopf „Vollbild“: Der Chart füllt den ganzen iPhone-Bildschirm, hoch und quer, mit kompakter Leiste oben, aufklappbaren Ebenen und Z-Score zum Ein- und Ausblenden',
+      'Geschmeidiges Wischen mit Schwung, Zoomen mit zwei Fingern und an der Preisachse ziehen',
+      'Neues Feld „Jahresvergleich“: das laufende Jahr neben den Jahren mit derselben Zyklus-Position (2014, 2018, 2022) samt Folgejahr, dazu die Zyklus-Tiefs mit Rückgang und Dauer'
+    ],
+    behoben: [
+      '„Alles“ zeigte auf dem iPhone nur gut ein Jahr, weil die Tage nicht schmal genug werden durften. Jetzt passt die ganze Historie seit 2010 auf einen Blick'
+    ]
+  },
   {
     v: '6.5',
     d: '2026-11-24',
