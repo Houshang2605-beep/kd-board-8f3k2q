@@ -5674,6 +5674,15 @@ function btcZeigen() {
   btcAnalogZeichnen();
 }
 
+/* Formatiert einen Kurs für Achse und Fadenkreuz: Nachkommastellen je nach Größe, damit 0,30 $ nicht als „0“ erscheint. */
+function btcPreisText(v) {
+  const betrag = Math.abs(v);
+  const stellen = betrag >= 100 ? 0 : betrag >= 1 ? 2 : betrag >= 0.1 ? 2 : betrag >= 0.01 ? 3 : 4;
+  let text = v.toFixed(stellen);
+  if (stellen > 0) text = text.replace(/0+$/, '').replace(/\.$/, '');
+  return text.replace('.', ',');
+}
+
 /* Zeichnet Kurs-Chart und Z-Score-Chart, verbindet Zeitachsen, Fadenkreuz und Werkzeugleiste. */
 function btcChartsZeichnen(K) {
   const R = K.R,
@@ -5716,7 +5725,7 @@ function btcChartsZeichnen(K) {
   });
   const ohne = { lastValueVisible: false, priceLineVisible: false };
   const nichtSkalieren = { autoscaleInfoProvider: () => null };
-  const fmtPreis = { priceFormat: { type: 'price', precision: 0, minMove: 1 } };
+  const fmtPreis = { priceFormat: { type: 'custom', formatter: btcPreisText, minMove: 0.0001 } };
 
   const zone = ch.addBaselineSeries({
     ...ohne,
@@ -6290,6 +6299,15 @@ function btcAnalogZeichnen() {
    ===================================================================== */
 
 const CHANGELOG = [
+  {
+    v: '6.7',
+    d: '2026-11-24',
+    t: 'Kursachse im BTC-Chart zeigt Werte unter 1 $ richtig',
+    art: 'patch',
+    behoben: [
+      'Die Kursachse und das Fadenkreuz rundeten auf ganze Dollar. Kurse unter 1 $ (2010 bis Anfang 2011) erschienen deshalb als „0“. Jetzt gibt es Nachkommastellen, zum Beispiel 0,3 oder 0,05'
+    ]
+  },
   {
     v: '6.6',
     d: '2026-11-24',
