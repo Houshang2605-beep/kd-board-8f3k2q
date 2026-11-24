@@ -1549,17 +1549,262 @@ html[data-theme="tokio"] .vpop {
     grid-template-columns: 1fr;
   }
 }
+
+/* =====================================================================
+   BTC-ZYKLUS
+   ---------------------------------------------------------------------
+   Kachel im Depot, Kopf mit Lage heute, Werkzeugleiste mit Zeitraum,
+   Skala und Ebenen, Haupt-Chart mit Beschriftung der Marken, Z-Score-
+   Chart darunter und die Saisonalitäts-Tabelle als Wärmekarte.
+   ===================================================================== */
+.btc-kachel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 14px;
+  font: inherit;
+  color: inherit;
+  border-left: 3px solid #f7a440;
+}
+.btc-kachel:hover,
+.btc-kachel:focus-visible {
+  border-color: #f7a440;
+  transform: translateY(-1px);
+}
+.btc-kachel .bk-t {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.btc-kachel .bk-t b {
+  font-size: 16px;
+}
+.btc-kachel .bk-w {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+  color: var(--mut);
+  min-width: 0;
+}
+.btc-kachel .bk-w > span:first-child {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--tx);
+}
+.btc-kachel .bk-p {
+  font-size: 22px;
+  color: #f7a440;
+}
+.btc-kopf {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.btc-kopf > section {
+  padding: 20px 22px;
+  min-width: 0;
+}
+.btc-kopf > section + section {
+  border-left: 1px solid var(--line);
+}
+.btc-lage {
+  margin: 0;
+  display: grid;
+}
+.btc-lage > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  font-size: 13px;
+}
+.btc-lage > div:last-child {
+  border-bottom: 0;
+}
+.btc-lage dt {
+  color: var(--mut);
+  min-width: 0;
+}
+.btc-lage dd {
+  margin: 0;
+  text-align: right;
+  min-width: 0;
+}
+.btc-chartbox {
+  margin-bottom: 14px;
+}
+.btc-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+.btc-gruppe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btc-gruppe button {
+  padding: 5px 11px;
+  font-size: 13px;
+}
+.btc-gruppe button.on {
+  border-color: #f7a440;
+  color: #f7a440;
+}
+.btc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 6px;
+}
+.btc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  opacity: 0.5;
+}
+.btc-chip.on {
+  opacity: 1;
+}
+.btc-chip i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.btc-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  color: var(--mut);
+  min-height: 20px;
+  margin: 4px 0;
+}
+.btc-legende .btc-kaufinfo {
+  color: #7df0b8;
+}
+.btc-haupt {
+  position: relative;
+}
+#btc-haupt {
+  height: 480px;
+}
+.btc-tags {
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+.btc-tags span {
+  position: absolute;
+  left: 0;
+  transform: translateY(-100%);
+  font-size: 11px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+.btc-zkopf {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 10px;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.btc-zkopf .small {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.btc-z {
+  height: 150px;
+}
+.btc-hinweis {
+  margin-top: 10px;
+}
+.btc-liste {
+  margin: 0 0 8px;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.btc-saison {
+  font-size: 12px;
+}
+.btc-saison td,
+.btc-saison th {
+  padding: 4px 6px;
+  text-align: right;
+}
+.btc-saison td:first-child,
+.btc-saison th:first-child {
+  text-align: left;
+}
+.btc-saison th.jetzt {
+  color: #f7a440;
+}
+.btc-saison tr.stat td {
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 900px) {
+  .btc-kopf {
+    grid-template-columns: 1fr;
+  }
+  .btc-kopf > section + section {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 700px) {
+  .btc-kachel {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .btc-kachel .bk-w {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  #btc-haupt {
+    height: 380px;
+  }
+  .btc-z {
+    height: 120px;
+  }
+  .btc-kopf > section {
+    padding: 16px 14px;
+  }
+}
+.btc-tw {
+  overflow-x: auto;
+}
 </style>
 </head>
 <body>
 <header>
   <h1>Kraken Depot<button id="ver" class="ver" type="button" aria-label="Version und Änderungen anzeigen"></button> <span id="stand"></span></h1>
   <div class="ctl">
-    <nav><button data-v="depot">Depot</button><button data-v="staking">Staking</button><button data-v="steuer">Steuer</button></nav>
+    <nav><button data-v="depot">Depot</button><button data-v="staking">Staking</button><button data-v="steuer">Steuer</button><button data-v="btc">BTC</button></nav>
     <button id="theme" title="Optik wechseln: Standard oder Tokio (Tokyo Night)">Optik: Standard</button><button id="reload" title="Alle Kurse neu von Kraken laden und alles neu berechnen">↻ Aktualisieren</button>
   </div>
 </header>
-<main><div id="wasneu"></div><div id="v-depot" class="view"></div><div id="v-staking" class="view"></div><div id="v-steuer" class="view"></div></main>
+<main><div id="wasneu"></div><div id="v-depot" class="view"></div><div id="v-staking" class="view"></div><div id="v-steuer" class="view"></div><div id="v-btc" class="view"></div></main>
 <script>/*!
  * @license
  * TradingView Lightweight Charts™ v4.2.3
@@ -3424,6 +3669,7 @@ function depotZeigen() {
     vol,
     stNow
   })}
+  <div id="btc-kachel"></div>
   <div id="orderbuch"></div>
   <div class="row">
     <div class="panel" style="position:relative"><h2>Verteilung Krypto</h2><canvas id="donut" width="260" height="260"></canvas><div id="dtip" style="position:absolute;display:none;background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;pointer-events:none;white-space:nowrap;z-index:4"></div><div class="lg" id="lg"></div></div>
@@ -3543,6 +3789,7 @@ function depotZeigen() {
       })
   );
   orderbuchZeigen();
+  btcKachelZeigen();
 }
 /* Wechselt das Chart-Intervall eines Coins und lädt die Kerzen. */
 async function intervallSetzen(c, tf, card) {
@@ -4680,12 +4927,13 @@ function csvDatei(name, rows) {
 
 /* Zeigt Depot, Staking oder Steuer und merkt die Wahl in der Adresse (#depot …). */
 function ansichtZeigen(v) {
-  if (!['depot', 'staking', 'steuer'].includes(v)) v = 'depot';
+  if (!['depot', 'staking', 'steuer', 'btc'].includes(v)) v = 'depot';
   document.querySelectorAll('.view').forEach(e => e.classList.toggle('on', e.id === 'v-' + v));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   try {
     history.replaceState(null, '', '#' + v);
   } catch (e) {}
+  if (v === 'btc') btcZeigen();
 }
 /* Baut alle drei Ansichten neu auf. */
 function allesZeigen() {
@@ -4697,6 +4945,7 @@ function allesZeigen() {
   depotZeigen();
   stakingZeigen();
   steuerZeigen();
+  if ($('#v-btc')?.classList.contains('on')) btcZeigen();
 }
 /* Lädt Marktdaten für die Steckbriefe bei CoinGecko; schlägt das fehl, bleibt der Stand. */
 async function geckoLaden() {
@@ -4887,6 +5136,722 @@ function orderbuchZeigen() {
 }
 
 /* =====================================================================
+   BTC-ZYKLUS — die Mutter aller Bewegungen
+   ---------------------------------------------------------------------
+   Eigene Ansicht (#btc) mit allem, was du für Bitcoin nutzt:
+   Kurs seit 2010 in US-Dollar (log oder linear), Two-Year-MA und ihr
+   Doppeltes (Two Year MA Multiplier), 200-Wochen-Linie, deine Einstiegs-
+   zone 38.000–50.000 $, die Elliott-Marken deines Analysten bis Anfang
+   2027, die Halvings, dein Ø-Einstand, jeder einzelne Kauf, auf Wunsch
+   die stabilen Orderbuch-Wände von Kraken. Darunter der MVRV Z-Score und
+   eine Saisonalitäts-Tabelle (Monatsrenditen je Jahr, wie Seasonax).
+   Daten: data/btc/btc_tag.json, täglich vom GitHub-Lauf „BTC-Daten“
+   (Coin Metrics Community API). Der heutige Kurs kommt live von Binance
+   (BTC/USDT, USDT ≈ USD).
+   Deine Käufe sind in Euro. Für den Dollar-Chart rechne ich jeden Kauf mit
+   dem Verhältnis BTC/USD zu BTC/EUR am selben Tag um: eine Näherung, im
+   Hinweisfeld steht der echte Euro-Kurs.
+   Berechnung (btc…Kennzahlen, btcReihen, btcSaison) ist getrennt von der
+   Darstellung (btcZeigen, btcChartsZeichnen, btcKachelZeigen).
+   ===================================================================== */
+const BTC_HALVINGS = [
+  ['2012-11-28', '1. Halving'],
+  ['2016-07-09', '2. Halving'],
+  ['2020-05-11', '3. Halving'],
+  ['2024-04-20', '4. Halving']
+];
+const BTC_ZONE = [38000, 50000];
+const BTC_ELLIOTT = {
+  unten: [23962, 34740, 65000],
+  oben: [82822, 95000, 126230]
+};
+const BTC_EBENEN_START = {
+  ma2: 1,
+  ma2x: 1,
+  w200: 1,
+  zone: 1,
+  elliott: 1,
+  halving: 1,
+  kaeufe: 1,
+  einstand: 1,
+  orderbuch: 0
+};
+let BTC_DATEN = null;
+let BTC_ANSICHT = null;
+const TAG = 86400;
+
+/* Liest die Ebenen-Auswahl (welche Linien sichtbar sind) aus dem Speicher. */
+function btcEbenen() {
+  try {
+    return { ...BTC_EBENEN_START, ...JSON.parse(speicher.get('btcEbenen', '{}')) };
+  } catch (e) {
+    return { ...BTC_EBENEN_START };
+  }
+}
+
+/* Lädt die Tagesdaten aus dem Repo und hängt den Live-Kurs von heute an. */
+async function btcDatenLaden() {
+  try {
+    const r = await fetch('data/btc/btc_tag.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const t = d.t.slice(),
+      p = d.p.slice(),
+      z = d.z.slice();
+    let live = null;
+    try {
+      const lr = await fetch('https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT');
+      if (lr.ok) live = +(await lr.json()).price;
+    } catch (e) {}
+    const heute = Math.floor(Date.now() / 1000 / TAG) * TAG;
+    if (live && heute > t[t.length - 1]) {
+      t.push(heute);
+      p.push(live);
+      z.push(null);
+    } else if (live) p[p.length - 1] = live;
+    BTC_DATEN = { t, p, z, stand: d.stand, quelle: d.quelle, live: !!live };
+  } catch (e) {
+    BTC_DATEN = { fehler: String(e.message || e) };
+  }
+  btcKachelZeigen();
+  if ($('#v-btc')?.classList.contains('on')) btcZeigen();
+}
+
+/* Einfacher gleitender Durchschnitt; null, solange weniger als n Werte da sind. */
+function btcGleitend(werte, n) {
+  const out = new Array(werte.length).fill(null);
+  let s = 0;
+  for (let i = 0; i < werte.length; i++) {
+    s += werte[i];
+    if (i >= n) s -= werte[i - n];
+    if (i >= n - 1) out[i] = s / n;
+  }
+  return out;
+}
+
+/* Wochenschlusskurse (Woche Montag bis Sonntag) und die 200-Wochen-Linie darauf. */
+function btc200Wochen(t, p) {
+  const wt = [],
+    wp = [];
+  for (let i = 0; i < t.length; i++) {
+    const w = Math.floor((t[i] + 3 * TAG) / (7 * TAG));
+    const vorher = i ? Math.floor((t[i - 1] + 3 * TAG) / (7 * TAG)) : null;
+    if (w === vorher) {
+      wt[wt.length - 1] = t[i];
+      wp[wp.length - 1] = p[i];
+    } else {
+      wt.push(t[i]);
+      wp.push(p[i]);
+    }
+  }
+  const sma = btcGleitend(wp, 200);
+  return wt.map((x, i) => ({ t: x, v: sma[i] })).filter(x => x.v !== null);
+}
+
+/* Index des letzten Tages ≤ t (binäre Suche). */
+function btcTagIndex(t) {
+  const T = BTC_DATEN.t;
+  let lo = 0,
+    hi = T.length - 1,
+    r = -1;
+  while (lo <= hi) {
+    const m = (lo + hi) >> 1;
+    if (T[m] <= t) {
+      r = m;
+      lo = m + 1;
+    } else hi = m - 1;
+  }
+  return r;
+}
+
+/* Alle Chart-Reihen aus den Tagesdaten: Kurs, 2J-MA, 2×, 200W, Z-Score. */
+function btcReihen() {
+  const { t, p, z } = BTC_DATEN;
+  const ma = btcGleitend(p, 730);
+  return {
+    kurs: t.map((x, i) => ({ time: x, value: p[i] })),
+    ma2: t.map((x, i) => (ma[i] === null ? { time: x } : { time: x, value: ma[i] })),
+    ma2x: t.map((x, i) => (ma[i] === null ? { time: x } : { time: x, value: 2 * ma[i] })),
+    w200: btc200Wochen(t, p).map(x => ({ time: x.t, value: x.v })),
+    z: t.map((x, i) => (z[i] === null ? { time: x } : { time: x, value: z[i] })),
+    maLetzt: ma[ma.length - 1]
+  };
+}
+
+/* Deine BTC-Käufe und -Verkäufe aus der Kaufliste, je Tag zusammengefasst und in Dollar umgerechnet. */
+function btcKaeufe() {
+  const coin = COINS.find(x => x.c === 'BTC');
+  const tage = {};
+  TRADES.filter(x => x[1] === 'BTC').forEach(([zeit, , menge, betrag, gebuehr]) => {
+    const tag = Math.floor(zeit / TAG) * TAG;
+    const art = menge > 0 ? 'kauf' : 'verkauf';
+    const k = tag + art;
+    tage[k] = tage[k] || { tag, art, menge: 0, betrag: 0, gebuehr: 0, anzahl: 0 };
+    tage[k].menge += Math.abs(menge);
+    tage[k].betrag += betrag;
+    tage[k].gebuehr += gebuehr;
+    tage[k].anzahl++;
+  });
+  return Object.values(tage)
+    .sort((a, b) => a.tag - b.tag)
+    .map(x => {
+      const eurKurs = x.betrag / x.menge;
+      const i = btcTagIndex(x.tag + TAG - 1);
+      const eurTag = kursZum(coin, x.tag + TAG - 1);
+      const fx = i >= 0 && eurTag ? BTC_DATEN.p[i] / eurTag : null;
+      return { ...x, eurKurs, usdKurs: fx ? eurKurs * fx : null, fx };
+    });
+}
+
+/* Kennzahlen „Lage heute“ und deine Käufe. */
+function btcKennzahlen() {
+  const { t, p, z } = BTC_DATEN;
+  const R = btcReihen();
+  const kurs = p[p.length - 1];
+  const w200 = R.w200[R.w200.length - 1].value;
+  let zi = z.length - 1;
+  while (zi > 0 && z[zi] === null) zi--;
+  const letzteHalving = BTC_HALVINGS[BTC_HALVINGS.length - 1];
+  const hT = Date.parse(letzteHalving[0]) / 1000;
+  const tageSeit = Math.floor((t[t.length - 1] - hT) / TAG);
+  const vorHalving = Date.parse(BTC_HALVINGS[BTC_HALVINGS.length - 2][0]) / 1000;
+  const vergleichI = btcTagIndex(vorHalving + tageSeit * TAG);
+  const alleEbenen = [...BTC_ELLIOTT.unten, ...BTC_ELLIOTT.oben].sort((a, b) => a - b);
+  const kaeufe = btcKaeufe();
+  const k = kaeufe.filter(x => x.art === 'kauf');
+  const v = kaeufe.filter(x => x.art === 'verkauf');
+  const menge = k.reduce((s, x) => s + x.menge, 0) - v.reduce((s, x) => s + x.menge, 0);
+  const betrag = k.reduce((s, x) => s + x.betrag, 0);
+  const gebuehr = k.reduce((s, x) => s + x.gebuehr, 0);
+  const coin = COINS.find(x => x.c === 'BTC');
+  const eurJetzt = aktuellerKurs(coin);
+  const fxJetzt = eurJetzt ? kurs / eurJetzt : null;
+  return {
+    R,
+    kurs,
+    zeit: t[t.length - 1],
+    ma2: R.maLetzt,
+    w200,
+    z: z[zi],
+    zZeit: t[zi],
+    zone:
+      kurs > BTC_ZONE[1]
+        ? (BTC_ZONE[1] / kurs - 1) * 100
+        : kurs < BTC_ZONE[0]
+          ? 'darunter'
+          : 'drin',
+    unter: alleEbenen.filter(x => x < kurs).pop(),
+    ueber: alleEbenen.find(x => x > kurs),
+    halving: letzteHalving[1],
+    tageSeit,
+    vergleich: vergleichI >= 0 ? { zeit: t[vergleichI], kurs: p[vergleichI] } : null,
+    kaeufe,
+    anzahl: k.reduce((s, x) => s + x.anzahl, 0),
+    erster: k.length ? k[0].tag : null,
+    menge,
+    betrag,
+    gebuehr,
+    oeKaufEur: k.length ? betrag / k.reduce((s, x) => s + x.menge, 0) : null,
+    avgKraken: coin.avg,
+    eurJetzt,
+    fxJetzt,
+    wertJetzt: eurJetzt ? menge * eurJetzt : null
+  };
+}
+
+/* Monatsrenditen je Jahr (Monatsschluss gegen Vormonatsschluss), dazu Ø, Median und Anteil positiver Monate. */
+function btcSaison() {
+  const { t, p } = BTC_DATEN;
+  const schluss = {};
+  t.forEach((x, i) => {
+    const d = new Date(x * 1000);
+    schluss[d.getUTCFullYear() * 12 + d.getUTCMonth()] = p[i];
+  });
+  const keys = Object.keys(schluss)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const jahre = {};
+  keys.forEach((k, i) => {
+    if (!i || keys[i - 1] !== k - 1) return;
+    const j = Math.floor(k / 12),
+      m = k % 12;
+    if (j < 2011) return;
+    (jahre[j] = jahre[j] || new Array(12).fill(null))[m] = (schluss[k] / schluss[k - 1] - 1) * 100;
+  });
+  const stat = [...Array(12)].map((_, m) => {
+    const w = Object.values(jahre)
+      .map(r => r[m])
+      .filter(x => x !== null)
+      .sort((a, b) => a - b);
+    const mitte = w.length
+      ? w.length % 2
+        ? w[(w.length - 1) / 2]
+        : (w[w.length / 2 - 1] + w[w.length / 2]) / 2
+      : null;
+    return {
+      mittel: w.length ? w.reduce((s, x) => s + x, 0) / w.length : null,
+      median: mitte,
+      positiv: w.length ? (w.filter(x => x > 0).length / w.length) * 100 : null,
+      n: w.length
+    };
+  });
+  return { jahre, stat };
+}
+
+/* Kachel in der Depot-Ansicht, die zur BTC-Zyklus-Ansicht führt. */
+function btcKachelZeigen() {
+  const box = $('#btc-kachel');
+  if (!box) return;
+  let info = '<span class="small">lädt …</span>';
+  if (BTC_DATEN && BTC_DATEN.fehler)
+    info = '<span class="small">Daten nicht erreichbar: ' + BTC_DATEN.fehler + '</span>';
+  else if (BTC_DATEN) {
+    const K = btcKennzahlen();
+    info = `<span class="num">${zahl(K.kurs, 0)} $</span><span>MVRV Z <b class="num">${zahl(K.z, 2)}</b></span><span>zur 200-Wochen-Linie <b class="num ${farbKlasse(K.kurs - K.w200)}">${prozent((K.kurs / K.w200 - 1) * 100)}</b></span><span>zum 2-Jahres-Schnitt <b class="num ${farbKlasse(K.kurs - K.ma2)}">${prozent((K.kurs / K.ma2 - 1) * 100)}</b></span>`;
+  }
+  box.innerHTML = `<button type="button" class="panel btc-kachel" data-btc-oeffnen><span class="bk-t"><b>BTC-Zyklus-Chart</b><span class="small">Die Mutter aller Bewegungen: Kurs seit 2010, 2-Jahres-Schnitt, 200-Wochen-Linie, MVRV Z-Score, deine Käufe</span></span><span class="bk-w">${info}</span><span class="bk-p" aria-hidden="true">→</span></button>`;
+  box.querySelector('[data-btc-oeffnen]').onclick = () => ansichtZeigen('btc');
+}
+
+/* Baut die BTC-Zyklus-Ansicht: Kopf mit Lage heute, Werkzeugleiste, zwei Charts, Käufe, Saisonalität. */
+function btcZeigen() {
+  const box = $('#v-btc');
+  if (!box) return;
+  if (BTC_ANSICHT) BTC_ANSICHT.entfernen();
+  if (!BTC_DATEN) {
+    box.innerHTML = '<div class="panel"><h2>BTC-Zyklus</h2><div class="small">lädt …</div></div>';
+    return;
+  }
+  if (BTC_DATEN.fehler) {
+    box.innerHTML = `<div class="panel"><h2>BTC-Zyklus</h2><div class="small">Die Tagesdaten (data/btc/btc_tag.json) sind nicht erreichbar: ${BTC_DATEN.fehler}. Der GitHub-Lauf „BTC-Daten“ legt sie täglich an.</div></div>`;
+    return;
+  }
+  const K = btcKennzahlen();
+  const S = btcSaison();
+  const E = btcEbenen();
+  const zText =
+    K.z < 0
+      ? 'unter 0: historisch Bodenbereich'
+      : K.z < 2
+        ? 'niedrig'
+        : K.z < 5
+          ? 'mittel'
+          : K.z < 7
+            ? 'hoch'
+            : 'über 7: historisch Überhitzung';
+  const zoneText =
+    K.zone === 'drin'
+      ? '<b class="up">in deiner Zone</b>'
+      : K.zone === 'darunter'
+        ? '<b class="up">unter deiner Zone</b>'
+        : `noch <b class="num">${prozent(K.zone)}</b> bis 50.000 $`;
+  const chip = (k, t, farbe) =>
+    `<button type="button" class="btc-chip${E[k] ? ' on' : ''}" data-ebene="${k}"><i style="background:${farbe}"></i>${t}</button>`;
+  const monate = [
+    'Jan',
+    'Feb',
+    'Mär',
+    'Apr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Dez'
+  ];
+  const jetztM = new Date(K.zeit * 1000).getUTCMonth();
+  const zelle = (v, fett) =>
+    v === null || v === undefined
+      ? '<td></td>'
+      : `<td class="num" style="background:color-mix(in srgb,${v >= 0 ? 'var(--up)' : 'var(--dn)'} ${Math.min(55, Math.abs(v) * 1.4)}%,transparent)">${fett ? '<b>' : ''}${zahl(v, 1)}${fett ? '</b>' : ''}</td>`;
+  const jahre = Object.keys(S.jahre)
+    .map(Number)
+    .sort((a, b) => b - a);
+  box.innerHTML = `
+  <div class="panel btc-kopf">
+    <section>
+      <div class="eyb"><span>Bitcoin in US-Dollar</span><span class="sep">|</span><span>${BTC_DATEN.live ? 'Kurs live von Binance' : 'Kurs vom ' + datum(K.zeit, false)}</span><span class="sep">|</span><span>Tagesdaten Stand ${datum(Date.parse(BTC_DATEN.stand) / 1000)}</span></div>
+      <div class="hv num">${zahl(K.kurs, 0)}<small>$</small></div>
+      <div class="trio">
+        <div><div class="k">MVRV Z-Score</div><div class="v2 num">${zahl(K.z, 2)}</div><div class="s2">${zText} · ${datum(K.zZeit, false)}</div></div>
+        <div><div class="k">200-Wochen-Linie</div><div class="v2 num">${zahl(K.w200, 0)} $</div><div class="s2 num ${farbKlasse(K.kurs - K.w200)}">Kurs ${prozent((K.kurs / K.w200 - 1) * 100)}</div></div>
+        <div><div class="k">2-Jahres-Schnitt</div><div class="v2 num">${zahl(K.ma2, 0)} $</div><div class="s2 num">Kurs ${prozent((K.kurs / K.ma2 - 1) * 100)} · 2× = ${zahl(2 * K.ma2, 0)} $</div></div>
+      </div>
+    </section>
+    <section>
+      <div class="h3"><span>Lage heute</span></div>
+      <dl class="btc-lage">
+        <div><dt>Deine Einstiegszone 38.000–50.000 $</dt><dd>${zoneText}</dd></div>
+        <div><dt>Nächste Elliott-Marke darunter</dt><dd class="num">${K.unter ? zahl(K.unter, 0) + ' $ (' + prozent((K.unter / K.kurs - 1) * 100) + ')' : '–'}</dd></div>
+        <div><dt>Nächste Elliott-Marke darüber</dt><dd class="num">${K.ueber ? zahl(K.ueber, 0) + ' $ (' + prozent((K.ueber / K.kurs - 1) * 100) + ')' : '–'}</dd></div>
+        <div><dt>Zyklus</dt><dd>Tag ${K.tageSeit} nach dem ${K.halving}${K.vergleich ? `<br><span class="small">gleicher Tag im letzten Zyklus: ${datum(K.vergleich.zeit, false)}, ${zahl(K.vergleich.kurs, 0)} $</span>` : ''}</dd></div>
+        <div><dt>Saisonalität ${monate[jetztM]}</dt><dd class="num">Ø ${prozent(S.stat[jetztM].mittel)} · Median ${prozent(S.stat[jetztM].median)} · ${zahl(S.stat[jetztM].positiv, 0)} % positiv (${S.stat[jetztM].n} Jahre)</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <div class="panel btc-chartbox">
+    <div class="btc-leiste">
+      <div class="btc-gruppe" role="group" aria-label="Zeitraum">
+        <button type="button" data-zeit="365">1 J</button><button type="button" data-zeit="730">2 J</button><button type="button" data-zeit="1460">4 J</button><button type="button" data-zeit="kaeufe">Meine Käufe</button><button type="button" data-zeit="alles">Alles</button>
+      </div>
+      <div class="btc-gruppe" role="group" aria-label="Skala">
+        <button type="button" data-skala="log">Log</button><button type="button" data-skala="lin">Linear</button>
+      </div>
+    </div>
+    <div class="btc-chips">
+      ${chip('ma2', '2-Jahres-Schnitt', '#4ea1ff')}${chip('ma2x', '2 × 2-Jahres-Schnitt', '#a78bfa')}${chip('w200', '200-Wochen-Linie', '#e5679d')}${chip('zone', 'Einstiegszone', 'rgba(77,208,140,.6)')}${chip('elliott', 'Elliott-Marken', '#c9a227')}${chip('halving', 'Halvings', '#9aa3b5')}${chip('kaeufe', 'Meine Käufe', '#7df0b8')}${chip('einstand', 'Ø-Einstand', '#ffb347')}${chip('orderbuch', 'Orderbuch-Wände', '#5fb0ff')}
+    </div>
+    <div class="btc-legende num" id="btc-legende"></div>
+    <div class="btc-haupt"><div id="btc-haupt"></div><div class="btc-tags" id="btc-tags"></div></div>
+    <div class="btc-zkopf"><span>MVRV Z-Score</span><span class="small">unter 0 = historisch Bodenbereich, über 7 = historisch Überhitzung</span></div>
+    <div id="btc-z" class="btc-z"></div>
+    <div class="small btc-hinweis">Daten: ${BTC_DATEN.quelle}; Kurs heute: Binance BTC/USDT. Z-Score nach der Formel (Marktkap. − realisierte Kap.) / Standardabweichung der Marktkap.; andere Anbieter weichen leicht ab. Elliott-Marken aus der Analyse deines YouTube-Analysten, als langfristiger Rahmen, kein Signal. Deine Käufe sind in Euro und mit dem Tagesverhältnis BTC/USD zu BTC/EUR umgerechnet (Näherung).</div>
+  </div>
+
+  <div class="row">
+    <div class="panel">
+      <h2>Deine BTC-Käufe</h2>
+      <dl class="btc-lage">
+        <div><dt>Käufe</dt><dd class="num">${K.anzahl}${K.erster ? ' seit ' + datum(K.erster, false) : ''}</dd></div>
+        <div><dt>Gekauft</dt><dd class="num">${zahl(K.menge, 8)} BTC</dd></div>
+        <div><dt>Eingesetzt</dt><dd class="num">${eur(K.betrag)} + ${eur(K.gebuehr)} Gebühren</dd></div>
+        <div><dt>Ø-Kaufkurs dieser Käufe</dt><dd class="num">${K.oeKaufEur ? eur(K.oeKaufEur, 0) : '–'}${K.oeKaufEur && K.fxJetzt ? ' ≈ ' + zahl(K.oeKaufEur * K.fxJetzt, 0) + ' $' : ''}</dd></div>
+        <div><dt>Ø-Einstand laut Kraken (ganzer Bestand)</dt><dd class="num">${eur(K.avgKraken, 0)}${K.fxJetzt ? ' ≈ ' + zahl(K.avgKraken * K.fxJetzt, 0) + ' $' : ''}</dd></div>
+        <div><dt>Wert heute</dt><dd class="num ${farbKlasse((K.wertJetzt || 0) - K.betrag - K.gebuehr)}">${K.wertJetzt ? eur(K.wertJetzt) + ' (' + eurVz(K.wertJetzt - K.betrag - K.gebuehr) + ')' : '–'}</dd></div>
+      </dl>
+      <div class="small" style="margin-top:8px">Kaufliste aus dem Kontoauszug vom ${STAND_ZEIT}. Spätere Tageskäufe fehlen, bis der Auszug erneuert wird. Ø-Einstand laut Kraken umfasst auch ältere Käufe und ist deshalb höher.</div>
+    </div>
+    <div class="panel">
+      <h2>So liest du den Chart</h2>
+      <ul class="btc-liste">
+        <li><b>2-Jahres-Schnitt (blau):</b> Kurs darunter war historisch eine günstige Kaufphase.</li>
+        <li><b>2 × 2-Jahres-Schnitt (lila):</b> Kurs darüber war historisch eine Überhitzung (Two Year MA Multiplier).</li>
+        <li><b>200-Wochen-Linie (rosa):</b> lag in jedem Bärenmarkt nahe am Tief.</li>
+        <li><b>MVRV Z-Score:</b> unter 0 fielen alle bisherigen Böden; über 7 die Hochs 2013, 2017 und Anfang 2021.</li>
+        <li><b>Grüne Fläche:</b> deine Einstiegszone 38.000–50.000 $.</li>
+      </ul>
+      <div class="small">Alle Linien beschreiben, was früher passiert ist. Ob es diesmal wieder so kommt, sagt keiner davon voraus.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Saisonalität: Monatsrendite je Jahr in %</h2>
+    <div class="btc-tw"><table class="btc-saison">
+      <thead><tr><th>Jahr</th>${monate.map((m, i) => `<th class="${i === jetztM ? 'jetzt' : ''}">${m}</th>`).join('')}</tr></thead>
+      <tbody>
+        <tr class="stat"><td>Ø</td>${S.stat.map(s => zelle(s.mittel, true)).join('')}</tr>
+        <tr class="stat"><td>Median</td>${S.stat.map(s => zelle(s.median, true)).join('')}</tr>
+        <tr class="stat"><td>% positiv</td>${S.stat.map(s => `<td class="num">${s.positiv === null ? '' : zahl(s.positiv, 0)}</td>`).join('')}</tr>
+        ${jahre.map(j => `<tr><td>${j}</td>${S.jahre[j].map(v => zelle(v)).join('')}</tr>`).join('')}
+      </tbody>
+    </table></div>
+    <div class="small" style="margin-top:8px">Monatsschluss gegen Vormonatsschluss in US-Dollar, ab 2011. Der laufende Monat zählt bis heute.</div>
+  </div>`;
+  btcChartsZeichnen(K);
+}
+
+/* Zeichnet Kurs-Chart und Z-Score-Chart, verbindet Zeitachsen, Fadenkreuz und Werkzeugleiste. */
+function btcChartsZeichnen(K) {
+  const R = K.R,
+    E = btcEbenen();
+  const el = $('#btc-haupt'),
+    elz = $('#btc-z'),
+    tags = $('#btc-tags'),
+    leg = $('#btc-legende');
+  const log = speicher.get('btcSkala', 'log') === 'log';
+  const ch = LightweightCharts.createChart(el, {
+    ...chartGrundoptionen(el),
+    rightPriceScale: {
+      borderColor: FARBEN.line,
+      mode: log ? 1 : 0,
+      scaleMargins: { top: 0.06, bottom: 0.04 }
+    },
+    timeScale: { borderColor: FARBEN.line, rightOffset: 6 },
+    crosshair: { mode: 0 }
+  });
+  const chz = LightweightCharts.createChart(elz, {
+    ...chartGrundoptionen(elz),
+    rightPriceScale: { borderColor: FARBEN.line, scaleMargins: { top: 0.08, bottom: 0.08 } },
+    timeScale: { borderColor: FARBEN.line, rightOffset: 6, visible: true },
+    crosshair: { mode: 0 }
+  });
+  const ohne = { lastValueVisible: false, priceLineVisible: false };
+  const nichtSkalieren = { autoscaleInfoProvider: () => null };
+  const fmtPreis = { priceFormat: { type: 'price', precision: 0, minMove: 1 } };
+
+  const zone = ch.addBaselineSeries({
+    ...ohne,
+    ...fmtPreis,
+    ...nichtSkalieren,
+    baseValue: { type: 'price', price: BTC_ZONE[0] },
+    topLineColor: 'rgba(0,0,0,0)',
+    topFillColor1: 'rgba(77,208,140,.20)',
+    topFillColor2: 'rgba(77,208,140,.20)',
+    bottomLineColor: 'rgba(0,0,0,0)',
+    bottomFillColor1: 'rgba(0,0,0,0)',
+    bottomFillColor2: 'rgba(0,0,0,0)',
+    crosshairMarkerVisible: false,
+    visible: !!E.zone
+  });
+  zone.setData(
+    [R.kurs[0], R.kurs[R.kurs.length - 1]].map(x => ({ time: x.time, value: BTC_ZONE[1] }))
+  );
+  const ma2 = ch.addLineSeries({
+    ...ohne,
+    ...fmtPreis,
+    color: '#4ea1ff',
+    lineWidth: 2,
+    visible: !!E.ma2
+  });
+  ma2.setData(R.ma2);
+  const ma2x = ch.addLineSeries({
+    ...ohne,
+    ...fmtPreis,
+    color: '#a78bfa',
+    lineWidth: 2,
+    visible: !!E.ma2x
+  });
+  ma2x.setData(R.ma2x);
+  const w200 = ch.addLineSeries({
+    ...ohne,
+    ...fmtPreis,
+    color: '#e5679d',
+    lineWidth: 2,
+    visible: !!E.w200
+  });
+  w200.setData(R.w200);
+  const kurs = ch.addLineSeries({
+    ...fmtPreis,
+    color: '#f7a440',
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: false
+  });
+  kurs.setData(R.kurs);
+  kurs.setMarkers(
+    E.halving
+      ? BTC_HALVINGS.map(([d, txt]) => ({
+          time: BTC_DATEN.t[Math.max(0, btcTagIndex(Date.parse(d) / 1000))],
+          position: 'aboveBar',
+          color: '#9aa3b5',
+          shape: 'arrowDown',
+          text: txt
+        }))
+      : []
+  );
+  const kaufPunkte = K.kaeufe.filter(x => x.usdKurs);
+  const kaeufe = ch.addLineSeries({
+    ...ohne,
+    ...nichtSkalieren,
+    lineVisible: false,
+    pointMarkersVisible: true,
+    pointMarkersRadius: 3,
+    color: '#7df0b8',
+    crosshairMarkerVisible: false,
+    visible: !!E.kaeufe
+  });
+  kaeufe.setData(
+    kaufPunkte.map(x => ({
+      time: x.tag,
+      value: x.usdKurs,
+      color: x.art === 'verkauf' ? '#e5679d' : x.eurKurs <= K.avgKraken ? '#7df0b8' : '#ffd166'
+    }))
+  );
+
+  // Waagerechte Marken (Linien ohne Achsen-Etikett, Beschriftung im Chart über btc-tags)
+  const marken = [];
+  const linie = (preis, farbe, text, gruppe, stil = 2) => {
+    const l = kurs.createPriceLine({
+      price: preis,
+      color: farbe,
+      lineWidth: 1,
+      lineStyle: stil,
+      axisLabelVisible: false,
+      lineVisible: !!E[gruppe]
+    });
+    marken.push({ l, preis, farbe, text, gruppe });
+  };
+  BTC_ELLIOTT.unten.forEach(x => linie(x, '#e0645a', 'Elliott ' + zahl(x, 0), 'elliott'));
+  BTC_ELLIOTT.oben.forEach(x => linie(x, '#4dd08c', 'Elliott ' + zahl(x, 0), 'elliott'));
+  linie(BTC_ZONE[1], 'rgba(77,208,140,.7)', 'Zone oben 50.000', 'zone', 0);
+  linie(BTC_ZONE[0], 'rgba(77,208,140,.7)', 'Zone unten 38.000', 'zone', 0);
+  if (K.fxJetzt)
+    linie(
+      K.avgKraken * K.fxJetzt,
+      '#ffb347',
+      'Ø-Einstand ≈ ' + zahl(K.avgKraken * K.fxJetzt, 0) + ' $',
+      'einstand',
+      1
+    );
+  if (K.fxJetzt && ORDERBUCH && ORDERBUCH.XBTEUR) {
+    const d = ORDERBUCH.XBTEUR;
+    ['kauf', 'verkauf'].forEach(seite =>
+      d.cluster[seite]
+        .filter(c => c.in_top5 >= Math.ceil(0.7 * d.schnappschuesse))
+        .forEach(c =>
+          linie(
+            c.stufe * K.fxJetzt,
+            '#5fb0ff',
+            'Wand ' + zahl(c.wert / 1e6, 1) + ' Mio. € ≈ ' + zahl(c.stufe * K.fxJetzt, 0) + ' $',
+            'orderbuch',
+            3
+          )
+        )
+    );
+  }
+  const etiketten = () => {
+    const h = el.clientHeight;
+    tags.innerHTML = marken
+      .filter(m => E[m.gruppe])
+      .map(m => {
+        const y = kurs.priceToCoordinate(m.preis);
+        return y === null || y < 6 || y > h - 6
+          ? ''
+          : `<span style="top:${y}px;color:${m.farbe}">${m.text}</span>`;
+      })
+      .join('');
+  };
+
+  const zs = chz.addBaselineSeries({
+    lastValueVisible: false,
+    priceLineVisible: false,
+    baseValue: { type: 'price', price: 0 },
+    topLineColor: '#f7a440',
+    topFillColor1: 'rgba(247,164,64,.25)',
+    topFillColor2: 'rgba(247,164,64,.03)',
+    bottomLineColor: '#4dd08c',
+    bottomFillColor1: 'rgba(77,208,140,.05)',
+    bottomFillColor2: 'rgba(77,208,140,.35)',
+    priceFormat: { type: 'price', precision: 2, minMove: 0.01 }
+  });
+  zs.setData(R.z);
+  zs.createPriceLine({
+    price: 7,
+    color: '#e0645a',
+    lineWidth: 1,
+    lineStyle: 2,
+    axisLabelVisible: false,
+    title: ''
+  });
+  zs.createPriceLine({
+    price: 0,
+    color: '#4dd08c',
+    lineWidth: 1,
+    lineStyle: 2,
+    axisLabelVisible: false,
+    title: ''
+  });
+
+  // Zeitachsen koppeln (gleiche Tage in beiden Charts)
+  let sperre = false;
+  const koppeln = (a, b) =>
+    a.timeScale().subscribeVisibleLogicalRangeChange(r => {
+      if (sperre || !r) return;
+      sperre = true;
+      b.timeScale().setVisibleLogicalRange(r);
+      sperre = false;
+      etiketten();
+    });
+  koppeln(ch, chz);
+  koppeln(chz, ch);
+
+  // Legende über dem Chart: Werte am Fadenkreuz, sonst heute
+  const idx = new Map(BTC_DATEN.t.map((x, i) => [x, i]));
+  const kaufAm = new Map(K.kaeufe.map(x => [x.tag, x]));
+  const w200Wert = t => {
+    let v = null;
+    for (const x of R.w200) {
+      if (x.time > t) break;
+      v = x.value;
+    }
+    return v;
+  };
+  const legende = t => {
+    const i = idx.has(t) ? idx.get(t) : BTC_DATEN.t.length - 1;
+    const tt = BTC_DATEN.t[i];
+    const k = kaufAm.get(tt);
+    const m = R.ma2[i].value,
+      w = w200Wert(tt),
+      z = BTC_DATEN.z[i];
+    leg.innerHTML =
+      `<span>${datum(tt, false)}</span><span style="color:#f7a440">Kurs ${zahl(BTC_DATEN.p[i], 0)} $</span>` +
+      (m
+        ? `<span style="color:#4ea1ff">2J ${zahl(m, 0)}</span><span style="color:#a78bfa">2× ${zahl(2 * m, 0)}</span>`
+        : '') +
+      (w ? `<span style="color:#e5679d">200W ${zahl(w, 0)}</span>` : '') +
+      (z !== null && z !== undefined ? `<span>Z ${zahl(z, 2)}</span>` : '') +
+      (k
+        ? `<span class="btc-kaufinfo">${k.art === 'verkauf' ? 'Verkauf' : 'Kauf'}: ${zahl(k.menge, 8)} BTC zu ${eur(k.eurKurs, 0)}${k.usdKurs ? ' ≈ ' + zahl(k.usdKurs, 0) + ' $' : ''}${k.anzahl > 1 ? ' (' + k.anzahl + ' Käufe)' : ''}</span>`
+        : '');
+  };
+  [ch, chz].forEach(c => c.subscribeCrosshairMove(p => legende(p && p.time)));
+  legende(null);
+
+  // Zeitraum, Skala, Ebenen
+  const box = $('#v-btc');
+  const zeitraum = z => {
+    speicher.set('btcZeit', z);
+    box
+      .querySelectorAll('[data-zeit]')
+      .forEach(b => b.classList.toggle('on', b.dataset.zeit === z));
+    const ende = BTC_DATEN.t[BTC_DATEN.t.length - 1] + 20 * TAG;
+    if (z === 'alles') ch.timeScale().fitContent();
+    else if (z === 'kaeufe' && K.erster)
+      ch.timeScale().setVisibleRange({ from: K.erster - 90 * TAG, to: ende });
+    else ch.timeScale().setVisibleRange({ from: ende - +z * TAG, to: ende });
+  };
+  box.querySelectorAll('[data-zeit]').forEach(b => (b.onclick = () => zeitraum(b.dataset.zeit)));
+  box.querySelectorAll('[data-skala]').forEach(b => {
+    b.classList.toggle('on', b.dataset.skala === (log ? 'log' : 'lin'));
+    b.onclick = () => {
+      speicher.set('btcSkala', b.dataset.skala);
+      ch.priceScale('right').applyOptions({ mode: b.dataset.skala === 'log' ? 1 : 0 });
+      box.querySelectorAll('[data-skala]').forEach(x => x.classList.toggle('on', x === b));
+      setTimeout(etiketten, 30);
+    };
+  });
+  const reihen = { ma2, ma2x, w200, zone, kaeufe };
+  box.querySelectorAll('[data-ebene]').forEach(b => {
+    b.onclick = () => {
+      const k = b.dataset.ebene;
+      E[k] = E[k] ? 0 : 1;
+      speicher.set('btcEbenen', JSON.stringify(E));
+      b.classList.toggle('on', !!E[k]);
+      if (reihen[k]) reihen[k].applyOptions({ visible: !!E[k] });
+      marken.filter(m => m.gruppe === k).forEach(m => m.l.applyOptions({ lineVisible: !!E[k] }));
+      if (k === 'halving') btcZeigen();
+      etiketten();
+    };
+  });
+  zeitraum(speicher.get('btcZeit', '1460'));
+
+  const ro = new ResizeObserver(() => {
+    try {
+      ch.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+      chz.applyOptions({ width: elz.clientWidth, height: elz.clientHeight });
+      etiketten();
+    } catch (e) {}
+  });
+  ro.observe(el);
+  ro.observe(elz);
+  ch.subscribeCrosshairMove(() => etiketten());
+  setTimeout(etiketten, 50);
+  BTC_ANSICHT = {
+    entfernen() {
+      ro.disconnect();
+      try {
+        ch.remove();
+        chz.remove();
+      } catch (e) {}
+      BTC_ANSICHT = null;
+    }
+  };
+}
+
+/* =====================================================================
    VERSIONSHISTORIE
    ---------------------------------------------------------------------
    Nach „Keep a Changelog“ und semantischer Versionierung, neueste oben.
@@ -4898,6 +5863,19 @@ function orderbuchZeigen() {
    ===================================================================== */
 
 const CHANGELOG = [
+  {
+    v: '6.5',
+    d: '2026-11-24',
+    t: 'BTC-Zyklus-Chart: die Mutter aller Bewegungen',
+    art: 'minor',
+    neu: [
+      'Neue Ansicht „BTC“ mit Kachel im Depot: Bitcoin seit 2010 in US-Dollar, log oder linear, Zeiträume 1 J bis Alles',
+      '2-Jahres-Schnitt und sein Doppeltes (Two Year MA Multiplier), 200-Wochen-Linie, Einstiegszone 38.000–50.000 $, Elliott-Marken, Halvings, Ø-Einstand und jeder deiner BTC-Käufe',
+      'MVRV Z-Score als eigener Chart darunter, Zeitachsen gekoppelt; Fadenkreuz zeigt alle Werte und deinen Kauf an diesem Tag',
+      'Lage heute (Zone, nächste Elliott-Marken, Tag nach dem Halving mit Vergleich zum letzten Zyklus) und Saisonalitäts-Tabelle wie Seasonax',
+      'Täglicher GitHub-Lauf „BTC-Daten“ holt Kurs und MVRV von Coin Metrics'
+    ]
+  },
   {
     v: '6.4',
     d: '2026-11-22',
@@ -5160,6 +6138,7 @@ optikSetzen(speicher.get('theme', 'tokio'));
 ansichtZeigen((location.hash || '#depot').slice(1));
 allesLaden();
 orderbuchLaden();
+btcDatenLaden();
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') versionSchliessen();
 });
