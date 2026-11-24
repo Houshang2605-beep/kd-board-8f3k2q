@@ -1,0 +1,33 @@
+# Bitcoin-Tagesdaten (Kurs, MVRV Z-Score) für die BTC-Zyklus-Ansicht
+# Täglich und auf Knopfdruck (Actions -> BTC-Daten -> Run workflow).
+# Ergebnis: data/btc/btc_tag.json. Quelle: Coin Metrics Community API.
+name: BTC-Daten
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 4 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: daten-commit
+  cancel-in-progress: false
+jobs:
+  abruf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests==2.32.3
+      - run: python tools/btc_daten.py data/btc/btc_tag.json
+      - name: Ergebnis speichern
+        run: |
+          git config user.name "btc-daten-bot"
+          git config user.email "actions@github.com"
+          git add data/btc
+          git diff --cached --quiet && exit 0
+          git commit -m "BTC-Daten: Stand $(date -u +%Y-%m-%d)"
+          git pull --rebase -q origin main
+          git push

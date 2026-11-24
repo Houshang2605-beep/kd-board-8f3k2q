@@ -12,7 +12,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: orderbuch
+  group: daten-commit
   cancel-in-progress: false
 jobs:
   abfrage:
